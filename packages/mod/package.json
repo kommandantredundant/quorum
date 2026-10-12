@@ -1,0 +1,12 @@
+{
+  "name": "quorum-mod",
+  "version": "0.0.0",
+  "description": "Optional moderation layer for quorum-core. Not required to run the core.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": { "quorum-core": "0.0.0" }
+}
