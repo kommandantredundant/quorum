@@ -4,14 +4,18 @@
   "version": "0.0.0",
   "description": "Embeddable, service-free reputation-weighted voting building block",
   "type": "module",
-  "workspaces": ["packages/*"],
-  "engines": { "node": ">=20" },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -b",
     "clean": "tsc -b --clean && rm -rf packages/*/dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
