@@ -41,7 +41,11 @@ export interface QuorumConfig {
     base: number;
     /** Multiplicative growth per reputation point. */
     growth: number;
-    /** Hard cap on a single voter's weight. */
+    /**
+     * Cap on a single voter's weight. `Infinity` (default) means no cap.
+     * Set a finite number to enable it later. Note: JSON cannot represent
+     * Infinity, so omit the field instead of serialising it.
+     */
     cap: number;
   };
 }
@@ -63,7 +67,7 @@ export const defaultConfig: QuorumConfig = {
     sampleRate: 0.2,
   },
   reputation: { reward: 1, penalty: -1.5, startValue: 0 },
-  weight: { base: 1, growth: 1.1, cap: 10 },
+  weight: { base: 1, growth: 1.1, cap: Infinity },
 };
 
 export class ConfigError extends Error {
