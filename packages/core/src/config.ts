@@ -45,6 +45,11 @@ export interface QuorumConfig {
     penalty: number;
     /** Reputation a new user starts with. */
     startValue: number;
+    /**
+     * Multiplier on the penalty for voters whose herd decision was overturned by
+     * a moderator. Applies to voters only, never to authors.
+     */
+    overridePenaltyFactor: number;
   };
   weight: {
     /** Weight at reputation 0. */
@@ -77,7 +82,7 @@ export const defaultConfig: QuorumConfig = {
     sampleRate: 0.2,
   },
   weightConflict: { maxDecisiveVoters: 2, minOpposingVoters: 5 },
-  reputation: { reward: 1, penalty: -1.5, startValue: 0 },
+  reputation: { reward: 1, penalty: -1.5, startValue: 0, overridePenaltyFactor: 2 },
   weight: { base: 1, growth: 1.1, cap: Infinity },
 };
 
@@ -146,6 +151,7 @@ export function validateConfig(c: QuorumConfig): QuorumConfig {
 
   if (!(c.reputation.reward > 0)) throw new ConfigError("reputation.reward must be > 0");
   if (!(c.reputation.penalty < 0)) throw new ConfigError("reputation.penalty must be < 0");
+  if (!(c.reputation.overridePenaltyFactor >= 1)) throw new ConfigError("reputation.overridePenaltyFactor must be >= 1");
   if (!Number.isFinite(c.reputation.startValue)) throw new ConfigError("reputation.startValue must be finite");
 
   requirePositive("weight.base", c.weight.base);
