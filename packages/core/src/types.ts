@@ -56,8 +56,8 @@ export interface Vote {
 export interface Outcome {
   verdict: Verdict;
   decidedBy: DecidedBy;
-  /** Weighted share of approvals at decision time (0..1). */
-  approvalRatio: number;
+  /** Weighted share of approvals at decision time (0..1); null if no weight was cast at all. */
+  approvalRatio: number | null;
   /** Sum of all vote weights at decision time. */
   totalWeight: number;
   resolvedAt: Timestamp;
