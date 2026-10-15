@@ -16,8 +16,9 @@ describe("defineConfig", () => {
   });
 
   it("does not mutate the defaults", () => {
+    const before = structuredClone(defaultConfig);
     defineConfig({ voting: { minVoters: 99 } });
-    expect(defaultConfig.voting.minVoters).toBe(5);
+    expect(defaultConfig).toEqual(before);
   });
 
   it("rejects invalid values", () => {

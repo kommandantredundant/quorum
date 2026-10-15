@@ -55,7 +55,7 @@ export type DeepPartial<T> = {
 };
 
 export const defaultConfig: QuorumConfig = {
-  voting: { windowHours: 72, minVoters: 5, maxExtensions: 3, extensionHours: 24 },
+  voting: { windowHours: 72, minVoters: 3, maxExtensions: 3, extensionHours: 24 },
   bands: {
     greyZone: [0.45, 0.55],
     sampleHigh: [0.55, 0.65],
