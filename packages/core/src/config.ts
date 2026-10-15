@@ -28,6 +28,16 @@ export interface QuorumConfig {
     /** Share of cases inside a sample band that gets flagged (0..1). */
     sampleRate: number;
   };
+  /**
+   * Weight-conflict rule: a few heavy voters decide against many light voters.
+   * Such cases go to review even if the weighted ratio is clear.
+   */
+  weightConflict: {
+    /** The side that wins by weight has at most this many voters ... */
+    maxDecisiveVoters: number;
+    /** ... while the opposing side has at least this many voters. */
+    minOpposingVoters: number;
+  };
   reputation: {
     /** Reputation change for voting with the final outcome. */
     reward: number;
@@ -66,6 +76,7 @@ export const defaultConfig: QuorumConfig = {
     sampleLow: [0.35, 0.45],
     sampleRate: 0.2,
   },
+  weightConflict: { maxDecisiveVoters: 2, minOpposingVoters: 5 },
   reputation: { reward: 1, penalty: -1.5, startValue: 0 },
   weight: { base: 1, growth: 1.1, cap: Infinity },
 };
@@ -124,6 +135,14 @@ export function validateConfig(c: QuorumConfig): QuorumConfig {
   requireRatio("bands.sampleRate", sampleRate);
   if (sampleLow[1] !== greyZone[0]) throw new ConfigError("bands.sampleLow must end where bands.greyZone starts");
   if (sampleHigh[0] !== greyZone[1]) throw new ConfigError("bands.sampleHigh must start where bands.greyZone ends");
+
+  const { maxDecisiveVoters, minOpposingVoters } = c.weightConflict;
+  if (!Number.isInteger(maxDecisiveVoters) || maxDecisiveVoters < 1) {
+    throw new ConfigError(`weightConflict.maxDecisiveVoters must be an integer >= 1 (got ${maxDecisiveVoters})`);
+  }
+  if (!Number.isInteger(minOpposingVoters) || minOpposingVoters <= maxDecisiveVoters) {
+    throw new ConfigError("weightConflict.minOpposingVoters must be an integer > maxDecisiveVoters");
+  }
 
   if (!(c.reputation.reward > 0)) throw new ConfigError("reputation.reward must be > 0");
   if (!(c.reputation.penalty < 0)) throw new ConfigError("reputation.penalty must be < 0");

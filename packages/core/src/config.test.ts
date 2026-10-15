@@ -27,6 +27,12 @@ describe("defineConfig", () => {
     expect(() => defineConfig({ weight: { cap: 0.5 } })).toThrow(ConfigError);
   });
 
+  it("validates the weight-conflict rule", () => {
+    expect(() => defineConfig({ weightConflict: { maxDecisiveVoters: 0 } })).toThrow(ConfigError);
+    expect(() => defineConfig({ weightConflict: { maxDecisiveVoters: 3, minOpposingVoters: 3 } })).toThrow(ConfigError);
+    expect(defineConfig({ weightConflict: { minOpposingVoters: 8 } }).weightConflict.maxDecisiveVoters).toBe(2);
+  });
+
   it("rejects bands that leave gaps or overlap", () => {
     expect(() => defineConfig({ bands: { greyZone: [0.4, 0.6] } })).toThrow(ConfigError);
   });
