@@ -6,3 +6,4 @@ export * from "./reputation.js";
 export * from "./lifecycle.js";
 export * from "./review.js";
 export * from "./decision.js";
+export * from "./handler.js";

@@ -1,4 +1,4 @@
-import type { Evaluation } from "./evaluate.js";
+import type { Evaluation, Tally } from "./evaluate.js";
 import type { Transition } from "./lifecycle.js";
 import type { ReviewReason, SubjectId, SubmissionId, Timestamp, UserId, Verdict } from "./types.js";
 
@@ -17,14 +17,21 @@ export interface ReviewRequest {
   authorId: UserId;
   reason: ReviewReason;
   requestedAt: Timestamp;
-  /** Weighted approval ratio at the time, or null if no weight was cast. */
+  /** Weighted approval ratio at the time, or null if there was no result (too few voters). */
   approvalRatio: number | null;
+  /** Weights and head counts at the time. */
+  tally: Tally;
   /** Only for `audit`. */
   herdVerdict?: Verdict;
 }
 
 function ratioOf(e: Evaluation): number | null {
   return e.kind === "insufficient" ? null : e.approvalRatio;
+}
+
+function tallyOf(e: Evaluation): Tally {
+  const { approveWeight, rejectWeight, totalWeight, approveCount, rejectCount, headCount } = e;
+  return { approveWeight, rejectWeight, totalWeight, approveCount, rejectCount, headCount };
 }
 
 /** Review request for a submission that needs a decision (from `advance`). */
@@ -38,6 +45,7 @@ export function reviewRequest(t: Extract<Transition, { kind: "review" }>, now: T
     reason: s.reason,
     requestedAt: now,
     approvalRatio: ratioOf(t.evaluation),
+    tally: tallyOf(t.evaluation),
   };
 }
 
@@ -56,6 +64,7 @@ export function auditRequest(t: Extract<Transition, { kind: "resolved" }>, now: 
     reason: "sample",
     requestedAt: now,
     approvalRatio: s.outcome.approvalRatio,
+    tally: tallyOf(t.evaluation),
     herdVerdict: s.outcome.verdict,
   };
 }
