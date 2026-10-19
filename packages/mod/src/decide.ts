@@ -10,12 +10,10 @@ import {
   type Verdict,
   type Vote,
 } from "quorum-core";
+import { defaultModConfig, type ModConfig } from "./config.js";
+import { isEligible } from "./eligibility.js";
+import type { ModHooks } from "./hooks.js";
 import type { DecidedCase, ModCase } from "./types.js";
-
-/** Provided by the host website; the moderation layer has no user management of its own. */
-export interface ModHooks {
-  isModerator(userId: UserId): boolean | Promise<boolean>;
-}
 
 export class ModerationError extends Error {
   constructor(message: string) {
@@ -51,12 +49,15 @@ export interface DecideCaseResult {
  */
 export async function decideCase(
   input: DecideCaseInput,
-  deps: { hooks: ModHooks; config: Pick<QuorumConfig, "reputation"> },
+  deps: { hooks: ModHooks; config: Pick<QuorumConfig, "reputation">; mod?: ModConfig },
 ): Promise<DecideCaseResult> {
   const { case: c, moderatorId, submission } = input;
 
   if (!(await deps.hooks.isModerator(moderatorId))) {
     throw new ModerationError(`User ${moderatorId} is not a moderator`);
+  }
+  if (!(await isEligible(c, moderatorId, deps.hooks, deps.mod ?? defaultModConfig))) {
+    throw new ModerationError(`Moderator ${moderatorId} has a conflict of interest with case ${c.id}`);
   }
   if (c.status !== "pending") throw new ModerationError(`Case ${c.id} is already decided`);
   if (submission.id !== c.id) throw new ModerationError(`Submission ${submission.id} does not belong to case ${c.id}`);

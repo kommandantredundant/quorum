@@ -1,11 +1,13 @@
 import { advance, defaultConfig, openSubmission, reviewRequest, type Submission } from "quorum-core";
 import { describe, expect, it } from "vitest";
+import { defaultModConfig, defineModConfig } from "./config.js";
 import { decideCase, ModerationError } from "./decide.js";
+import { isEligible, queueFor } from "./eligibility.js";
 import { compareCases, openCase, pendingQueue } from "./queue.js";
 
 const cfg = defaultConfig;
 const H = 3_600_000;
-const hooks = { isModerator: (id: string) => id === "mod" };
+const hooks = { isModerator: (id: string) => id === "mod", countModerators: () => 1, hasVoted: () => false };
 const votes = [
   { voterId: "y1", choice: "approve" as const, weight: 5 },
   { voterId: "n1", choice: "reject" as const, weight: 5 },
@@ -47,5 +49,38 @@ describe("quorum-mod", () => {
   it("refuses a submission that does not match the case", async () => {
     const other: Submission = { ...review, id: "other" };
     await expect(decideCase({ case: pending, moderatorId: "mod", verdict: "approved", submission: other, votes, now: 80 * H }, { hooks, config: cfg })).rejects.toThrow(/does not belong/);
+  });
+
+  describe("conflict of interest", () => {
+    const mk = (n: number, voted: string[] = []) => ({
+      isModerator: () => true,
+      countModerators: () => n,
+      hasVoted: (u: string) => voted.includes(u),
+    });
+    const own = pending; // author is "au"
+
+    it.each([
+      // moderators, who asks, voted?, eligible
+      [2, "au", false, true], //  below 3: may take own cases
+      [3, "au", false, false], //  from 3: not own cases
+      [3, "y1", true, true], //   from 3 but below 10: may take cases they voted on
+      [10, "y1", true, false], // from 10: not cases they voted on
+      [10, "other", false, true],
+    ])("%i moderators, user %s (voted=%s) -> eligible=%s", async (n, user, voted, expected) => {
+      expect(await isEligible(own, user, mk(n, voted ? [user] : []), defaultModConfig)).toBe(expected);
+    });
+
+    it("filters the queue and blocks decideCase for ineligible moderators", async () => {
+      const h = mk(3);
+      expect(await queueFor("au", [own], h, defaultModConfig)).toEqual([]);
+      expect(await queueFor("mod", [own], h, defaultModConfig)).toHaveLength(1);
+      await expect(
+        decideCase({ case: own, moderatorId: "au", verdict: "approved", submission: review, votes, now: 80 * H }, { hooks: h, config: cfg }),
+      ).rejects.toThrow(/conflict of interest/);
+    });
+
+    it("validates thresholds", () => {
+      expect(() => defineModConfig({ conflicts: { excludeAuthoredFrom: 5, excludeVotedFrom: 3 } })).toThrow(RangeError);
+    });
   });
 });
