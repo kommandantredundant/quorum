@@ -5,4 +5,6 @@ export * from "./hooks.js";
 export * from "./config.js";
 export * from "./queue.js";
 export * from "./eligibility.js";
+export * from "./sampling.js";
 export * from "./decide.js";
+export * from "./audit.js";

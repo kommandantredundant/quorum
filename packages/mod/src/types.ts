@@ -5,10 +5,15 @@ import type { DecisionChange, ReviewRequest, SubmissionId, Timestamp, UserId, Ve
  * decision) or already decided and sampled (audit), never both at once, so the
  * submission ID doubles as case ID. Plain, JSON-serializable data.
  */
+/** Why a decided submission was picked for a spot check (see sampling.ts). */
+export type SampleTrigger = "narrow" | "divergence" | "edge";
+
 interface CaseBase {
   id: SubmissionId;
   request: ReviewRequest;
   createdAt: Timestamp;
+  /** Only for spot checks: which rules picked the case. */
+  triggers?: SampleTrigger[];
 }
 
 export interface PendingCase extends CaseBase {

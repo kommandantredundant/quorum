@@ -88,6 +88,7 @@ export async function decideCase(input: DecideCaseInput, deps: Deps): Promise<De
     id: c.id,
     request: c.request,
     createdAt: c.createdAt,
+    ...(c.triggers && { triggers: c.triggers }),
     status: "decided",
     resolution: { moderatorId, verdict: input.verdict, change: result.change, decidedAt: input.now },
   };
@@ -113,6 +114,7 @@ export async function reviseCase(input: DecideCaseInput, deps: Deps): Promise<De
     id: c.id,
     request: c.request,
     createdAt: c.createdAt,
+    ...(c.triggers && { triggers: c.triggers }),
     status: "decided",
     resolution: { moderatorId, verdict: input.verdict, change: result.change, decidedAt: input.now },
     previous: [...(c.previous ?? []), c.resolution],
