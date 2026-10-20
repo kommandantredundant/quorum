@@ -6,7 +6,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "quorum-core": fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
+      "quorum-mod": fileURLToPath(new URL("./packages/mod/src/index.ts", import.meta.url)),
     },
   },
-  test: { include: ["packages/*/src/**/*.test.ts"] },
+  test: { include: ["packages/*/src/**/*.test.ts"], testTimeout: 60_000 },
 });

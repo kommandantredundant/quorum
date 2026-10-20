@@ -1,7 +1,14 @@
 {
   "files": [],
   "references": [
-    { "path": "packages/core" },
-    { "path": "packages/mod" }
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/mod"
+    },
+    {
+      "path": "packages/adapters"
+    }
   ]
 }

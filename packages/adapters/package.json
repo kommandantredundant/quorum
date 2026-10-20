@@ -1,0 +1,14 @@
+{
+  "name": "quorum-adapters",
+  "version": "0.0.0",
+  "description": "Reference SQL storage for quorum-core / quorum-mod: SQLite (node:sqlite, better-sqlite3) and Postgres (pg, pglite).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": { "quorum-core": "0.0.0" },
+  "peerDependencies": { "quorum-mod": "0.0.0" },
+  "peerDependenciesMeta": { "quorum-mod": { "optional": true } }
+}
