@@ -25,7 +25,10 @@ export interface CaseResolution {
 
 export interface DecidedCase extends CaseBase {
   status: "decided";
+  /** The latest decision. */
   resolution: CaseResolution;
+  /** Earlier decisions in order (oldest first), present once a decision was revised or re-confirmed. */
+  previous?: CaseResolution[];
 }
 
 export type ModCase = PendingCase | DecidedCase;

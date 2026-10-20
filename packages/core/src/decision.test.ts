@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig } from "./config.js";
 import { applyDecision, DecisionError } from "./decision.js";
+import { settleDeltas } from "./reputation.js";
 import type { Submission } from "./types.js";
 
 const cfg = defaultConfig;
@@ -44,14 +45,38 @@ describe("applyDecision", () => {
     expect(r).toMatchObject({ change: "confirmed", deltas: [], submission: audited });
   });
 
-  it("refuses open submissions and already moderated ones", () => {
-    const open: Submission = { ...base, status: "open" };
-    expect(() => applyDecision({ submission: open, votes, decision: { verdict: "approved" }, now: 1 }, cfg)).toThrow(DecisionError);
+  it("revises a moderator decision: undo and redo with normal values", () => {
     const moderated: Submission = {
       ...base,
       status: "resolved",
-      outcome: { verdict: "approved", decidedBy: "review", approvalRatio: 0.6, totalWeight: 2, resolvedAt: 2 },
+      outcome: { verdict: "approved", decidedBy: "review", approvalRatio: 0.5, totalWeight: 2, resolvedAt: 2 },
     };
-    expect(() => applyDecision({ submission: moderated, votes, decision: { verdict: "rejected" }, now: 1 }, cfg)).toThrow(DecisionError);
+    const r = applyDecision({ submission: moderated, votes, decision: { verdict: "rejected" }, now: 9 }, cfg);
+    expect(r.change).toBe("revised");
+    expect(r.submission.outcome).toMatchObject({ verdict: "rejected", decidedBy: "review" });
+    expect(byUser(r.deltas)).toEqual({ au: -2.5, y1: -2.5, n1: 2.5 });
+    expect(applyDecision({ submission: moderated, votes, decision: { verdict: "approved" }, now: 9 }, cfg).change).toBe("confirmed");
+  });
+
+  it("reverting an override ends exactly where the confirmed herd verdict would", () => {
+    const total = (ds: { userId: string; delta: number }[][]) => {
+      const m: Record<string, number> = {};
+      ds.flat().forEach((d) => (m[d.userId] = (m[d.userId] ?? 0) + d.delta));
+      return m;
+    };
+    const herd = applyDecision({ submission: audited, votes, decision: { verdict: "approved" }, now: 5 }, cfg);
+    const flipped = applyDecision({ submission: audited, votes, decision: { verdict: "rejected" }, now: 6 }, cfg);
+    expect(flipped.submission.outcome.herdVerdict).toBe("approved");
+    const reverted = applyDecision({ submission: flipped.submission, votes, decision: { verdict: "approved" }, now: 7 }, cfg);
+    expect(reverted.change).toBe("revised");
+    expect(reverted.submission.outcome.herdVerdict).toBeUndefined();
+
+    const settled = settleDeltas({ authorId: "au", votes }, "approved", cfg);
+    expect(total([settled, flipped.deltas, reverted.deltas])).toEqual(total([settled, herd.deltas]));
+  });
+
+  it("refuses open submissions", () => {
+    const open: Submission = { ...base, status: "open" };
+    expect(() => applyDecision({ submission: open, votes, decision: { verdict: "approved" }, now: 1 }, cfg)).toThrow(DecisionError);
   });
 });

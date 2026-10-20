@@ -1,7 +1,7 @@
 import { advance, defaultConfig, openSubmission, reviewRequest, type Submission } from "quorum-core";
 import { describe, expect, it } from "vitest";
 import { defaultModConfig, defineModConfig } from "./config.js";
-import { decideCase, ModerationError } from "./decide.js";
+import { decideCase, ModerationError, reviseCase } from "./decide.js";
 import { isEligible, queueFor } from "./eligibility.js";
 import { compareCases, openCase, pendingQueue } from "./queue.js";
 
@@ -49,6 +49,18 @@ describe("quorum-mod", () => {
   it("refuses a submission that does not match the case", async () => {
     const other: Submission = { ...review, id: "other" };
     await expect(decideCase({ case: pending, moderatorId: "mod", verdict: "approved", submission: other, votes, now: 80 * H }, { hooks, config: cfg })).rejects.toThrow(/does not belong/);
+  });
+
+  it("revises a decided case: keeps the history and books the undo/redo deltas", async () => {
+    const deps = { hooks, config: cfg };
+    const first = await decideCase({ case: pending, moderatorId: "mod", verdict: "approved", submission: review, votes, now: 80 * H }, deps);
+    const second = await reviseCase({ case: first.case, moderatorId: "mod", verdict: "rejected", submission: first.submission, votes, now: 90 * H }, deps);
+    expect(second.change).toBe("revised");
+    expect(second.submission.outcome.verdict).toBe("rejected");
+    expect(second.case.previous).toEqual([first.case.resolution]);
+    expect(second.case.resolution).toMatchObject({ verdict: "rejected", change: "revised", decidedAt: 90 * H });
+    expect(second.deltas.length).toBeGreaterThan(0);
+    await expect(reviseCase({ case: pending, moderatorId: "mod", verdict: "approved", submission: review, votes, now: 1 }, deps)).rejects.toThrow(/not decided yet/);
   });
 
   describe("conflict of interest", () => {

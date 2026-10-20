@@ -61,6 +61,11 @@ export interface Outcome {
   /** Sum of all vote weights at decision time. */
   totalWeight: number;
   resolvedAt: Timestamp;
+  /**
+   * Set when a moderator overrode a weight verdict: the verdict that was overridden.
+   * Lets a later revision undo the voter-only double penalty correctly.
+   */
+  herdVerdict?: Verdict;
 }
 
 interface SubmissionBase {

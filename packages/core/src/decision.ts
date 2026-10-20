@@ -1,6 +1,6 @@
 import type { QuorumConfig } from "./config.js";
 import { tally } from "./evaluate.js";
-import { overrideDeltas, settleDeltas, type ReputationDelta } from "./reputation.js";
+import { overrideDeltas, reviseDeltas, settleDeltas, type ReputationDelta } from "./reputation.js";
 import type { Outcome, ResolvedSubmission, Submission, Timestamp, Verdict, Vote } from "./types.js";
 
 /**
@@ -32,9 +32,11 @@ export interface ApplyDecisionInput {
  * - `decided`: submission was in review without a verdict; reputation is settled normally.
  * - `overridden`: an audit flipped the weight verdict; deltas are the difference to what
  *   `settleDeltas` already applied, with the voter-only double penalty.
- * - `confirmed`: an audit agreed with the weight verdict; nothing changes.
+ * - `revised`: a moderator changed an earlier moderator decision; deltas undo the old state
+ *   and book the new one (an override reverted this way ends like a confirmed herd verdict).
+ * - `confirmed`: the decision agrees with the current verdict; nothing changes.
  */
-export type DecisionChange = "decided" | "overridden" | "confirmed";
+export type DecisionChange = "decided" | "overridden" | "revised" | "confirmed";
 
 export interface DecisionResult {
   change: DecisionChange;
@@ -70,15 +72,23 @@ export function applyDecision(input: ApplyDecisionInput, config: Pick<QuorumConf
 
   // resolved
   const { outcome } = submission;
-  if (outcome.decidedBy === "review") {
-    throw new DecisionError("Already decided in review; revising a moderator decision is not supported yet");
-  }
   if (decision.verdict === outcome.verdict) {
     return { change: "confirmed", submission, deltas: [] };
   }
+  if (outcome.decidedBy === "review") {
+    const { herdVerdict: _herd, ...rest } = outcome;
+    return {
+      change: "revised",
+      submission: { ...submission, outcome: { ...rest, verdict: decision.verdict, resolvedAt: now } },
+      deltas: reviseDeltas(settleInput, outcome, decision.verdict, config),
+    };
+  }
   return {
     change: "overridden",
-    submission: { ...submission, outcome: { ...outcome, verdict: decision.verdict, decidedBy: "review", resolvedAt: now } },
+    submission: {
+      ...submission,
+      outcome: { ...outcome, verdict: decision.verdict, decidedBy: "review", herdVerdict: outcome.verdict, resolvedAt: now },
+    },
     deltas: overrideDeltas(settleInput, outcome.verdict, config),
   };
 }

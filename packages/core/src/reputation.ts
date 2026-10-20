@@ -1,5 +1,5 @@
 import type { QuorumConfig } from "./config.js";
-import type { Reputation, Timestamp, UserId, Verdict, Vote } from "./types.js";
+import type { Outcome, Reputation, Timestamp, UserId, Verdict, Vote } from "./types.js";
 
 /**
  * Reputation updates. Pure: they return deltas, the caller persists them.
@@ -44,6 +44,13 @@ function toDeltas(m: Map<UserId, number>): ReputationDelta[] {
   return [...m].filter(([, delta]) => delta !== 0).map(([userId, delta]) => ({ userId, delta }));
 }
 
+/** next - previous, per user. */
+function difference(next: Map<UserId, number>, previous: Map<UserId, number>): ReputationDelta[] {
+  const out = new Map(next);
+  for (const [id, n] of previous) out.set(id, (out.get(id) ?? 0) - n);
+  return toDeltas(out);
+}
+
 /** Deltas when a submission is decided with `verdict` (by herd, or by a moderator without a prior herd verdict). */
 export function settleDeltas(input: SettleInput, verdict: Verdict, config: RepConfig): ReputationDelta[] {
   return toDeltas(standing(input, verdict, 1, config));
@@ -55,10 +62,29 @@ export function settleDeltas(input: SettleInput, verdict: Verdict, config: RepCo
  */
 export function overrideDeltas(input: SettleInput, originalVerdict: Verdict, config: RepConfig): ReputationDelta[] {
   const flipped: Verdict = originalVerdict === "approved" ? "rejected" : "approved";
-  const finalState = standing(input, flipped, config.reputation.overridePenaltyFactor, config);
-  const applied = standing(input, originalVerdict, 1, config);
-  for (const [id, n] of applied) finalState.set(id, (finalState.get(id) ?? 0) - n);
-  return toDeltas(finalState);
+  return difference(
+    standing(input, flipped, config.reputation.overridePenaltyFactor, config),
+    standing(input, originalVerdict, 1, config),
+  );
+}
+
+/**
+ * Deltas to apply on top of everything booked so far when a moderator revises an
+ * earlier moderator decision to `newVerdict` (undo and redo).
+ *
+ * - The current state is what the decision left behind: if it overrode a herd verdict
+ *   (`outcome.herdVerdict` set) wrong voters carry the double penalty, otherwise normal values.
+ * - Revising never overrides a herd verdict, so the new state uses normal values. Reverting
+ *   an override therefore ends exactly where a confirmed herd verdict would.
+ */
+export function reviseDeltas(
+  input: SettleInput,
+  outcome: Pick<Outcome, "verdict" | "herdVerdict">,
+  newVerdict: Verdict,
+  config: RepConfig,
+): ReputationDelta[] {
+  const factor = outcome.herdVerdict ? config.reputation.overridePenaltyFactor : 1;
+  return difference(standing(input, newVerdict, 1, config), standing(input, outcome.verdict, factor, config));
 }
 
 export function applyDelta(rep: Reputation, delta: number, now: Timestamp): Reputation {
