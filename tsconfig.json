@@ -9,6 +9,9 @@
     },
     {
       "path": "packages/adapters"
+    },
+    {
+      "path": "packages/sim"
     }
   ]
 }

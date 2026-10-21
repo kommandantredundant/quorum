@@ -15,7 +15,8 @@
     "clean": "tsc -b --clean && rm -rf packages/*/dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -p tsconfig.test.json"
+    "typecheck": "tsc -p tsconfig.test.json",
+    "sim": "node packages/sim/dist/cli.js"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

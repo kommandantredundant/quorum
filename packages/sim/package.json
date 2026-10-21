@@ -1,0 +1,8 @@
+{
+  "name": "quorum-sim",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Simulation harness for tuning and stress-testing quorum (not shipped).",
+  "type": "module",
+  "dependencies": { "quorum-core": "0.0.0", "quorum-mod": "0.0.0" }
+}
