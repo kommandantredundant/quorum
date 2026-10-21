@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.test.json",
-    "sim": "node packages/sim/dist/cli.js"
+    "sim": "node packages/sim/dist/cli.js",
+    "sweep": "node packages/sim/dist/sweep.js"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

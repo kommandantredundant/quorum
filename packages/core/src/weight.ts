@@ -26,6 +26,11 @@ export function voteWeight(reputation: number, config: WeightConfig): number {
   return Math.min(cap, WEIGHT_CEILING, base * Math.pow(growth, rep));
 }
 
+/** Start weight an author brings into their own submission: their vote weight, limited by `weight.authorCap`. */
+export function authorStartWeight(reputation: number, config: WeightConfig): number {
+  return Math.min(voteWeight(reputation, config), config.weight.authorCap);
+}
+
 /**
  * Reputation at which the configured cap is reached (and growth stops).
  * Returns Infinity if the cap can never be reached (no cap, or growth === 1

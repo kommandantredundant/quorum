@@ -13,11 +13,13 @@ const scenarios: Scenario[] = [
   { name: "Mitläufer (10 von 50)", honest: 40, accuracy: [0.65, 0.9], followers: 10, points: POINTS },
 ];
 
-export function simulate(sc: Scenario, mod: boolean, config?: DeepPartial<QuorumConfig>): Counters {
+export function simulate(sc: Scenario, mod: boolean, config?: DeepPartial<QuorumConfig>, hideInterim = false): Counters {
   const c = emptyCounters();
-  for (let seed = 1; seed <= SEEDS; seed++) runOnce({ scenario: sc, mod, seed, ...(config && { config }) }, c);
+  for (let seed = 1; seed <= SEEDS; seed++) runOnce({ scenario: sc, mod, seed, hideInterim, ...(config && { config }) }, c);
   return c;
 }
+
+export { scenarios };
 
 const pct = (a: number, b: number) => (b === 0 ? "   -  " : `${((100 * a) / b).toFixed(1).padStart(5)}%`);
 const mean = (p: { sum: number; n: number } | undefined) => (p && p.n > 0 ? (p.sum / p.n).toFixed(1) : "-");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig, defineConfig } from "./config.js";
-import { WEIGHT_CEILING, capReputation, voteWeight, votersToOutweigh } from "./weight.js";
+import { WEIGHT_CEILING, authorStartWeight, capReputation, voteWeight, votersToOutweigh } from "./weight.js";
 
 const uncapped = defaultConfig;
 const capped = defineConfig({ weight: { cap: 10 } });
@@ -77,5 +77,14 @@ describe("votersToOutweigh", () => {
 
   it("with a cap of 10, one capped voter needs 11 base-weight voters to be overruled", () => {
     expect(votersToOutweigh(voteWeight(1000, capped), voteWeight(0, capped))).toBe(11);
+  });
+});
+
+describe("authorStartWeight", () => {
+  it("equals the vote weight by default and is limited by authorCap", () => {
+    expect(authorStartWeight(30, uncapped)).toBe(voteWeight(30, uncapped));
+    const limited = defineConfig({ weight: { authorCap: 1 } });
+    expect(authorStartWeight(30, limited)).toBe(1);
+    expect(authorStartWeight(0, limited)).toBe(1);
   });
 });

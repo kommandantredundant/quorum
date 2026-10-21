@@ -1,5 +1,5 @@
 import {
-  advance, applyDecision, decideByWeight, defineConfig, openSubmission, reviewRequest, settleDeltas, voteWeight,
+  advance, applyDecision, authorStartWeight, decideByWeight, defineConfig, openSubmission, reviewRequest, settleDeltas, voteWeight,
   type DeepPartial, type QuorumConfig, type ReputationDelta, type Verdict, type VoteChoice,
 } from "quorum-core";
 import { auditCase, defineModConfig } from "quorum-mod";
@@ -35,6 +35,8 @@ export interface RunOptions {
   /** true: a moderator (accuracy `moderatorAccuracy`) answers reviews and checks sampled cases. */
   mod: boolean;
   moderatorAccuracy?: number;
+  /** true: the interim result is not public, so followers cannot copy the leading side. */
+  hideInterim?: boolean;
   seed: number;
 }
 
@@ -89,7 +91,7 @@ export function runOnce(opts: RunOptions, into: Counters): void {
     const truthVerdict: Verdict = truthGood ? "approved" : "rejected";
     const oracle = (): Verdict => (rng.chance(modAcc) ? truthVerdict : truthGood ? "rejected" : "approved");
 
-    const authorWeight = voteWeight(author.rep, cfg);
+    const authorWeight = authorStartWeight(author.rep, cfg);
     const sub = openSubmission({ id: `p${i}`, authorId: author.id, subjectId: `poi${i}` }, 0, cfg);
     const votes: { voterId: string; choice: VoteChoice; weight: number }[] = [];
     const arrivals: { user: User; pos: number }[] = [];
@@ -97,7 +99,7 @@ export function runOnce(opts: RunOptions, into: Counters): void {
     let rejectW = 0;
 
     const honestVote = (acc: number): VoteChoice => (rng.chance(acc) ? truth : truth === "approve" ? "reject" : "approve");
-    const followVote = (): VoteChoice => (votes.length === 0 ? honestVote(0.6) : approveW >= rejectW ? "approve" : "reject");
+    const followVote = (): VoteChoice => (votes.length === 0 || opts.hideInterim ? honestVote(0.6) : approveW >= rejectW ? "approve" : "reject");
     const choose = (u: User): VoteChoice | null => {
       switch (u.group) {
         case "honest": return honestVote(u.accuracy);

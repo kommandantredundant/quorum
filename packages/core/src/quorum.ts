@@ -7,7 +7,7 @@ import { settleDeltas, type ReputationDelta } from "./reputation.js";
 import { reviewRequest, type ReviewRequest } from "./review.js";
 import type { CoreStorage } from "./storage.js";
 import type { Submission, SubmissionId, SubmissionStatus, SubjectId, Timestamp, UserId, Verdict, Vote, VoteChoice } from "./types.js";
-import { voteWeight } from "./weight.js";
+import { authorStartWeight, voteWeight } from "./weight.js";
 
 /**
  * Orchestration: wires the pure core to a storage and the host's identity.
@@ -97,7 +97,8 @@ export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: Quor
       now,
       cfg,
     );
-    const authorWeight = await weightOfUser(storage, author);
+    const authorRep = await storage.getReputation(author);
+    const authorWeight = authorStartWeight(authorRep?.value ?? cfg.reputation.startValue, cfg);
     await storage.insertSubmission({ submission, authorWeight });
     return submission;
   }

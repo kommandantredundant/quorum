@@ -62,6 +62,12 @@ export interface QuorumConfig {
      * Infinity, so omit the field instead of serialising it.
      */
     cap: number;
+    /**
+     * Cap on the start weight an author brings into their own submission (separate from
+     * `cap`, which limits a voter's weight). `Infinity` (default): the author counts with
+     * their full vote weight. Set e.g. to `base` so an author counts at most like one new voter.
+     */
+    authorCap: number;
   };
 }
 
@@ -83,7 +89,7 @@ export const defaultConfig: QuorumConfig = {
   },
   weightConflict: { maxDecisiveVoters: 2, minOpposingVoters: 5 },
   reputation: { reward: 1, penalty: -1.5, startValue: 0, overridePenaltyFactor: 2 },
-  weight: { base: 1, growth: 1.1, cap: Infinity },
+  weight: { base: 1, growth: 1.1, cap: Infinity, authorCap: Infinity },
 };
 
 export class ConfigError extends Error {
@@ -156,6 +162,7 @@ export function validateConfig(c: QuorumConfig): QuorumConfig {
 
   requirePositive("weight.base", c.weight.base);
   if (!(c.weight.growth >= 1)) throw new ConfigError(`weight.growth must be >= 1 (got ${c.weight.growth})`);
+  if (!(c.weight.authorCap > 0)) throw new ConfigError(`weight.authorCap must be > 0 (got ${c.weight.authorCap})`);
   if (!(c.weight.cap >= c.weight.base)) throw new ConfigError("weight.cap must be >= weight.base");
   return c;
 }
