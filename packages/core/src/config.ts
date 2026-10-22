@@ -57,7 +57,10 @@ export interface QuorumConfig {
     /** Multiplicative growth per reputation point. */
     growth: number;
     /**
-     * Cap on a single voter's weight. `Infinity` (default) means no cap.
+     * Cap on a single voter's weight. Default 20: a top voter can still only be overruled by
+     * 20 new voters, but long-standing members cannot grow without bound (simulation: without
+     * a cap, accuracy drops and a few members decide everything once a community is old).
+     * `Infinity` means no cap.
      * Set a finite number to enable it later. Note: JSON cannot represent
      * Infinity, so omit the field instead of serialising it.
      */
@@ -89,7 +92,7 @@ export const defaultConfig: QuorumConfig = {
   },
   weightConflict: { maxDecisiveVoters: 2, minOpposingVoters: 5 },
   reputation: { reward: 1, penalty: -1.5, startValue: 0, overridePenaltyFactor: 2 },
-  weight: { base: 1, growth: 1.1, cap: Infinity, authorCap: Infinity },
+  weight: { base: 1, growth: 1.1, cap: 20, authorCap: Infinity },
 };
 
 export class ConfigError extends Error {

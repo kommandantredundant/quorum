@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { defaultConfig, defineConfig } from "./config.js";
 import { WEIGHT_CEILING, authorStartWeight, capReputation, voteWeight, votersToOutweigh } from "./weight.js";
 
-const uncapped = defaultConfig;
+const uncapped = defineConfig({ weight: { cap: Infinity } });
 const capped = defineConfig({ weight: { cap: 10 } });
 
 describe("voteWeight", () => {
-  it("defaults to no cap", () => {
-    expect(defaultConfig.weight.cap).toBe(Infinity);
+  it("defaults to a cap of 20 and can be switched off", () => {
+    expect(defaultConfig.weight.cap).toBe(20);
+    expect(voteWeight(1000, defaultConfig)).toBe(20);
     expect(voteWeight(50, uncapped)).toBeCloseTo(Math.pow(1.1, 50), 6);
   });
 

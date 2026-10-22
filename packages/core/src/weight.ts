@@ -14,7 +14,7 @@ export const WEIGHT_CEILING = 1e9;
  *
  *   weight = min(cap, WEIGHT_CEILING, base * growth ^ max(reputation, 0))
  *
- * - `cap` defaults to Infinity (no policy cap) and can be set later.
+ * - `cap` defaults to 20 (see config); `Infinity` disables it.
  * - Reputation below 0 is treated as 0: a penalised user still counts with the
  *   base weight, never less. (Provisional decision, revisit in simulation.)
  * - Pure and deterministic: same input, same output.

@@ -5,14 +5,14 @@ import { scenarios, simulate } from "./cli.js";
 interface Variant { name: string; config?: DeepPartial<QuorumConfig>; hideInterim?: boolean }
 
 const variants: Variant[] = [
-  { name: "Basis (heute)" },
+  { name: "Basis (Deckel 20)" },
+  { name: "Unbegrenzt (früherer Standard)", config: { weight: { cap: Infinity } } },
   { name: "Zwischenstand verdeckt", hideInterim: true },
   { name: "Autorengewicht <= 1", config: { weight: { authorCap: 1 } } },
   { name: "Autorengewicht <= 2", config: { weight: { authorCap: 2 } } },
   { name: "Autorengewicht <= 3", config: { weight: { authorCap: 3 } } },
   { name: "Autorengewicht <= 5", config: { weight: { authorCap: 5 } } },
   { name: "Deckel 10", config: { weight: { cap: 10 } } },
-  { name: "Deckel 20", config: { weight: { cap: 20 } } },
   { name: "Steile Kurve (0.3 / 1.24)", config: { weight: { base: 0.3, growth: 1.24 } } },
   { name: "Kombi: verdeckt+Autor<=1+Deckel 15", config: { weight: { authorCap: 1, cap: 15 } }, hideInterim: true },
   { name: "Kombi + steile Kurve", config: { weight: { authorCap: 0.3, cap: 15, base: 0.3, growth: 1.24 } }, hideInterim: true },
