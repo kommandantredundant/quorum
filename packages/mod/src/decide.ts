@@ -15,8 +15,14 @@ import { isEligible } from "./eligibility.js";
 import type { ModHooks } from "./hooks.js";
 import type { DecidedCase, ModCase } from "./types.js";
 
+export type ModerationErrorCode = "forbidden" | "conflict" | "invalid";
+
+/** `code` lets the host map errors to HTTP statuses (403, 409, 400). */
 export class ModerationError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    public readonly code: ModerationErrorCode = "invalid",
+  ) {
     super(message);
     this.name = "ModerationError";
   }
@@ -47,10 +53,10 @@ type Deps = { hooks: ModHooks; config: Pick<QuorumConfig, "reputation">; mod?: M
 /** Role and conflict-of-interest checks shared by decide and revise. */
 async function assertMayModerate(c: ModCase, moderatorId: UserId, deps: Deps): Promise<void> {
   if (!(await deps.hooks.isModerator(moderatorId))) {
-    throw new ModerationError(`User ${moderatorId} is not a moderator`);
+    throw new ModerationError(`User ${moderatorId} is not a moderator`, "forbidden");
   }
   if (!(await isEligible(c, moderatorId, deps.hooks, deps.mod ?? defaultModConfig))) {
-    throw new ModerationError(`Moderator ${moderatorId} has a conflict of interest with case ${c.id}`);
+    throw new ModerationError(`Moderator ${moderatorId} has a conflict of interest with case ${c.id}`, "forbidden");
   }
 }
 
@@ -75,12 +81,12 @@ function settle(input: DecideCaseInput, deps: Deps): DecisionResult {
 export async function decideCase(input: DecideCaseInput, deps: Deps): Promise<DecideCaseResult> {
   const { case: c, moderatorId, submission } = input;
   await assertMayModerate(c, moderatorId, deps);
-  if (c.status !== "pending") throw new ModerationError(`Case ${c.id} is already decided; use reviseCase to change it`);
+  if (c.status !== "pending") throw new ModerationError(`Case ${c.id} is already decided; use reviseCase to change it`, "conflict");
   if (submission.id !== c.id) throw new ModerationError(`Submission ${submission.id} does not belong to case ${c.id}`);
 
   const expected = c.request.mode === "decision" ? "needs_review" : "resolved";
   if (submission.status !== expected) {
-    throw new ModerationError(`Case ${c.id} is a ${c.request.mode} case but the submission is ${submission.status}`);
+    throw new ModerationError(`Case ${c.id} is a ${c.request.mode} case but the submission is ${submission.status}`, "conflict");
   }
 
   const result = settle(input, deps);
@@ -103,10 +109,10 @@ export async function decideCase(input: DecideCaseInput, deps: Deps): Promise<De
 export async function reviseCase(input: DecideCaseInput, deps: Deps): Promise<DecideCaseResult> {
   const { case: c, moderatorId, submission } = input;
   await assertMayModerate(c, moderatorId, deps);
-  if (c.status !== "decided") throw new ModerationError(`Case ${c.id} is not decided yet; use decideCase`);
+  if (c.status !== "decided") throw new ModerationError(`Case ${c.id} is not decided yet; use decideCase`, "conflict");
   if (submission.id !== c.id) throw new ModerationError(`Submission ${submission.id} does not belong to case ${c.id}`);
   if (submission.status !== "resolved") {
-    throw new ModerationError(`Case ${c.id} cannot be revised while the submission is ${submission.status}`);
+    throw new ModerationError(`Case ${c.id} cannot be revised while the submission is ${submission.status}`, "conflict");
   }
 
   const result = settle(input, deps);

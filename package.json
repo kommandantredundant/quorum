@@ -18,7 +18,9 @@
     "typecheck": "tsc -p tsconfig.test.json",
     "sim": "node packages/sim/dist/cli.js",
     "sweep": "node packages/sim/dist/sweep.js",
-    "bundle": "npm run bundle -w quorum-ui"
+    "bundle": "npm run bundle -w quorum-ui",
+    "example:minimal": "node examples/minimal/server.mjs",
+    "example:moderation": "node examples/with-moderation/server.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

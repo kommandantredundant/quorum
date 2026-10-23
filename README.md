@@ -36,11 +36,40 @@ To regenerate the images: `python3 docs/screenshots.py` (needs `pip install play
 
 | Package | Purpose | Required |
 | --- | --- | --- |
-| `quorum-core` | Weights, evaluation, reputation updates, lifecycle. Pure logic, no I/O. | yes |
-| `quorum-mod` | Moderation queue and decisions. | optional |
+| `quorum-core` | Weights, evaluation, reputation updates, lifecycle, orchestration. No I/O of its own. | yes |
+| `quorum-adapters` | SQL storage and schema for SQLite and Postgres. | one storage |
+| `quorum-http` | Route handler on web-standard `Request`/`Response`, plus a Node adapter. | for the UI |
+| `quorum-ui` | Web components `<quorum-vote>` and `<quorum-moderation>`, no dependencies. | optional |
+| `quorum-mod` | Moderation queue, decisions, spot checks, audit log. | optional |
+| `quorum-sim` | Simulation for tuning and stress tests (not shipped). | no |
 
 Dependency direction: `quorum-mod -> quorum-core`. The core never depends on `mod`,
 so the core runs fully without it.
+
+## Quick start
+
+```js
+const quorum = createQuorum({ storage, hooks: { currentUser: (req) => mySession(req)?.userId ?? null } });
+const api = createRouteHandler({ quorum });          // serves the four routes the UI needs
+```
+
+```html
+<script type="module" src="/quorum-ui.min.js"></script>
+<quorum-vote submission-id="…"></quorum-vote>
+```
+
+Two runnable examples: `npm run example:minimal` and `npm run example:moderation` (after
+`npm run build && npm run bundle`).
+
+## Documentation
+
+- [Getting started](docs/getting-started.md): the five steps, with and without moderation.
+- [How it works](docs/concepts.md): weights, windows, bands, reputation, moderation.
+- [Configuration](docs/configuration.md): every parameter with its default.
+- [Integration](docs/integration.md): trust boundary, storage, routes, interim result, abuse protection.
+- [UI components](docs/ui.md): attributes, events, theming.
+
+> The packages are at version 0.0.0 and not published to npm yet.
 
 ## Is it a good fit for your community?
 
