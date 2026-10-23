@@ -17,11 +17,14 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.test.json",
     "sim": "node packages/sim/dist/cli.js",
-    "sweep": "node packages/sim/dist/sweep.js"
+    "sweep": "node packages/sim/dist/sweep.js",
+    "bundle": "npm run bundle -w quorum-ui"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
     "@types/node": "^22.0.0",
+    "esbuild": "^0.28.2",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   }

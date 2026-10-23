@@ -90,6 +90,17 @@ describe.each(backends)("%s", (_name, make) => {
     expect(await code(quorum.vote(as("b"), s.id, "approve"))).toBe("closed");
   });
 
+  it("getView reflects the visitor: anonymous, author, voter before and after voting", async () => {
+    const { quorum, as } = await setup(make);
+    const s = await quorum.submit(as("au"), { subjectId: "p" });
+    expect(await quorum.getView(as(null), s.id)).toMatchObject({ myVote: null, canVote: false });
+    expect(await quorum.getView(as("au"), s.id)).toMatchObject({ myVote: null, canVote: false });
+    expect(await quorum.getView(as("a"), s.id)).toMatchObject({ myVote: null, canVote: true });
+    await quorum.vote(as("a"), s.id, "reject");
+    expect(await quorum.getView(as("a"), s.id)).toMatchObject({ myVote: "reject", canVote: false });
+    expect(await quorum.getView(as("b"), s.id)).toMatchObject({ myVote: null, canVote: true });
+  });
+
   it("books a decision only once when processed concurrently", async () => {
     const { storage, quorum, as, at } = await setup(make);
     const s = await quorum.submit(as("au"), { subjectId: "p" });

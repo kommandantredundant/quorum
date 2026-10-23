@@ -37,3 +37,27 @@ export interface DecidedCase extends CaseBase {
 }
 
 export type ModCase = PendingCase | DecidedCase;
+
+/** What the moderation UI gets: no votes, no voters, no author. */
+export interface ModCaseView {
+  id: SubmissionId;
+  mode: "decision" | "audit";
+  reason: ReviewRequest["reason"];
+  requestedAt: Timestamp;
+  approvalRatio: number | null;
+  herdVerdict?: Verdict;
+  triggers?: SampleTrigger[];
+}
+
+export function toCaseView(c: ModCase): ModCaseView {
+  const r = c.request;
+  return {
+    id: c.id,
+    mode: r.mode,
+    reason: r.reason,
+    requestedAt: r.requestedAt,
+    approvalRatio: r.approvalRatio,
+    ...(r.herdVerdict && { herdVerdict: r.herdVerdict }),
+    ...(c.triggers && { triggers: c.triggers }),
+  };
+}

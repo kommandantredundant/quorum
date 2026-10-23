@@ -19,7 +19,7 @@ import type { ModHooks } from "./hooks.js";
 import { openCase } from "./queue.js";
 import { auditCase } from "./sampling.js";
 import type { ModStorage } from "./storage.js";
-import type { PendingCase } from "./types.js";
+import { toCaseView, type ModCaseView, type PendingCase } from "./types.js";
 
 /** What the host provides. `hasVoted` comes from the storage, so it is not needed here. */
 export interface ModServiceHooks<Ctx> extends Pick<ModHooks, "isModerator" | "countModerators"> {
@@ -69,6 +69,11 @@ export function createModeration<S extends CoreStorage & ModStorage, Ctx = unkno
     return queueFor(user, await storage.listCases({ status: "pending" }), hooksFor(storage), mod);
   }
 
+  /** Same as `queue`, shaped for the moderation UI. */
+  async function queueView(ctx: Ctx): Promise<ModCaseView[]> {
+    return (await queue(ctx)).map(toCaseView);
+  }
+
   /** Decide a pending case, or revise an already decided one. Persists case, submission and reputation atomically. */
   async function decide(ctx: Ctx, submissionId: string, verdict: Verdict): Promise<DecideCaseResult> {
     const user = await requireModerator(ctx);
@@ -106,6 +111,7 @@ export function createModeration<S extends CoreStorage & ModStorage, Ctx = unkno
       if (c) await tx.insertCase(c);
     },
     queue,
+    queueView,
     decide,
   };
 }

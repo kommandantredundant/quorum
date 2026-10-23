@@ -66,6 +66,14 @@ export interface InterimResult {
   verdict?: Verdict;
 }
 
+/** What a page needs to render one submission for the current visitor. Weights only, never head counts or voters. */
+export interface SubmissionView extends InterimResult {
+  /** The visitor's own vote, if any. */
+  myVote: VoteChoice | null;
+  /** Logged in, not the author, window open, not voted yet. The server still re-checks on `vote`. */
+  canVote: boolean;
+}
+
 export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: QuorumOptions<S, Ctx>) {
   const { storage, hooks } = options;
   const cfg = defineConfig(options.config);
@@ -87,6 +95,8 @@ export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: Quor
   async function book(tx: CoreStorage, deltas: readonly ReputationDelta[], now: Timestamp): Promise<void> {
     for (const d of deltas) await tx.addReputation(d.userId, d.delta, cfg.reputation.startValue, now);
   }
+
+  const canVoteNow = (s: Submission): boolean => canVote(s, clock());
 
   async function submit(ctx: Ctx, input: { subjectId: SubjectId; payload?: unknown }): Promise<Submission> {
     const author = await requireUser(ctx);
@@ -196,5 +206,17 @@ export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: Quor
     };
   }
 
-  return { submit, vote, processSubmission, processDue, getInterimResult, config: cfg };
+  /** Interim result plus the visitor's own state. Anonymous visitors are fine (no vote, cannot vote). */
+  async function getView(ctx: Ctx, id: SubmissionId): Promise<SubmissionView> {
+    const interim = await getInterimResult(id);
+    const stored = await storage.getSubmission(id);
+    if (!stored) throw new QuorumError("not_found", `Submission ${id} not found`);
+    const user = await hooks.currentUser(ctx);
+    const myVote = user ? ((await storage.listVotes(id)).find((v) => v.voterId === user)?.choice ?? null) : null;
+    const s = stored.submission;
+    const canVote = !!user && s.authorId !== user && myVote === null && canVoteNow(s);
+    return { ...interim, myVote, canVote };
+  }
+
+  return { submit, vote, processSubmission, processDue, getInterimResult, getView, config: cfg };
 }
