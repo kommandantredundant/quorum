@@ -4,6 +4,34 @@ Embeddable, service-free building block for reputation-weighted community voting
 (e.g. rating points of interest). Runs inside the host website's own backend and
 database. No central service.
 
+## What it looks like
+
+The components are plain web components (`<quorum-vote>`, `<quorum-moderation>`) that live inside
+your own page and take their colours, radius and font from CSS variables.
+
+**Before voting.** By default the interim result stays hidden until the visitor has voted, so nobody
+can simply copy the leading side (`show-interim="after-vote"`; `always` and `after-close` also exist).
+
+![Vote box before voting: interim result hidden, approve and reject buttons](docs/screenshots/01-vote-before.png)
+
+**After voting.** The weighted result is shown as percentages only, never head counts or who voted.
+
+![Vote box after voting: 75 % approve, 25 % reject](docs/screenshots/02-vote-after.png)
+
+**Final states and theming.** Decided, rejected, sent to a moderator, and a custom theme set with CSS variables only.
+
+![Four vote boxes: approved, rejected, under review, custom theme](docs/screenshots/03-states-and-theming.png)
+
+**Moderation queue** (optional package `quorum-mod` plus the UI). Cases that need a decision come first,
+spot checks after them. The host decides what a case shows.
+
+![Moderation queue with three cases and approve/reject buttons](docs/screenshots/04-moderation-queue.png)
+
+The screenshots come from `docs/demo/demo.html`, a demo page with a fake client (no server needed).
+To open it yourself: `npm run build && npm run bundle`, serve the repository root (for example
+`python3 -m http.server`) and open `docs/demo/demo.html#before`, `#after`, `#states` or `#moderation`.
+To regenerate the images: `python3 docs/screenshots.py` (needs `pip install playwright`).
+
 ## Packages
 
 | Package | Purpose | Required |

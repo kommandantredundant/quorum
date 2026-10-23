@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>quorum demo</title>
+  <!--
+    Self-contained demo of quorum-ui with a fake client (no server needed).
+    Build first:  npm run build && npm run bundle
+    Serve the repo root (e.g. `python3 -m http.server`) and open  docs/demo/demo.html#before | #after | #states | #moderation
+  -->
+  <style>
+    body { margin: 0; background: #eef0f3; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f24; }
+    #stage { box-sizing: border-box; padding: 28px; width: 560px; }
+    #stage.wide { width: 940px; }
+    .card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .stack { display: grid; gap: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .poi h2 { margin: 0 0 4px; font-size: 1.2rem; }
+    .poi p { margin: 2px 0; color: #555; font-size: .95rem; }
+    .tag { display: inline-block; background: #e8f0fe; color: #1a56b0; border-radius: 99px; padding: 2px 10px; font-size: .8rem; margin: 8px 6px 12px 0; }
+    .caption { margin: 0 0 10px; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: #6b7280; }
+    .branded { --quorum-yes: #0b7285; --quorum-no: #c2255c; --quorum-radius: 18px; --quorum-button-radius: 999px; --quorum-font: Georgia, serif; --quorum-bg: #f8f4ff; --quorum-border: #d0bfff; }
+  </style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+  import { configureQuorum } from "../../packages/ui/dist/quorum-ui.min.js";
+
+  const H = 3600000;
+  const now = Date.now();
+  const stage = document.getElementById("stage");
+  configureQuorum({ interim: "after-vote" });
+
+  /** Stateful fake client: voting flips the view like the real server would. */
+  const fakeClient = (initial) => {
+    let view = { ...initial };
+    return {
+      getSubmission: async () => ({ ...view }),
+      vote: async (_id, choice) => {
+        view = { ...view, myVote: choice, canVote: false, approveWeight: view.approveWeight + (choice === "approve" ? 1 : 0), rejectWeight: view.rejectWeight + (choice === "reject" ? 1 : 0) };
+      },
+    };
+  };
+  const open = { submissionId: "s1", status: "open", windowEndsAt: now + 44 * H, approveWeight: 6.5, rejectWeight: 2.5, myVote: null, canVote: true };
+
+  const el = (tag, props = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) k === "class" ? (e.className = v) : e.setAttribute(k, v);
+    e.append(...kids);
+    return e;
+  };
+  const poiCard = (name, address, tags) => el("div", { class: "card poi" },
+    el("h2", {}, name), el("p", {}, address), ...tags.map((t) => el("span", { class: "tag" }, t)));
+  const vote = (view, attrs = {}) => {
+    const v = el("quorum-vote", { "submission-id": view.submissionId, lang: "en", ...attrs });
+    v.client = fakeClient(view);
+    return v;
+  };
+
+  const scene = location.hash.slice(1) || "before";
+
+  if (scene === "before" || scene === "after") {
+    stage.append(el("div", { class: "stack" },
+      poiCard("Café Sonnenhof", "Hauptstraße 12, Freiburg", ["Café", "Step-free entrance", "Newly submitted"]),
+      el("div", { class: "card" }, vote(open))));
+  }
+
+  if (scene === "states") {
+    stage.classList.add("wide");
+    const cell = (caption, node) => el("div", { class: "card" }, el("p", { class: "caption" }, caption), node);
+    const resolved = (verdict, a, r) => ({ ...open, submissionId: "s2", status: "resolved", verdict, approveWeight: a, rejectWeight: r, myVote: "approve", canVote: false });
+    stage.append(el("div", { class: "grid" },
+      cell("Decided: approved", vote(resolved("approved", 18, 6), { "show-interim": "always" })),
+      cell("Decided: rejected", vote(resolved("rejected", 4, 14), { "show-interim": "always" })),
+      cell("Close call, sent to a moderator", vote({ ...open, submissionId: "s3", status: "needs_review", approveWeight: 9, rejectWeight: 9, myVote: "reject", canVote: false }, { "show-interim": "always" })),
+      cell("Custom theme (CSS variables only)", (() => { const v = vote({ ...open, myVote: "approve", canVote: false, approveWeight: 12, rejectWeight: 5 }, { "show-interim": "always" }); v.classList.add("branded"); return v; })())));
+  }
+
+  if (scene === "moderation") {
+    const cases = [
+      { id: "c2", mode: "decision", reason: "weight_conflict", requestedAt: now - 26 * H, approvalRatio: 0.84 },
+      { id: "c1", mode: "decision", reason: "grey_zone", requestedAt: now - 5 * H, approvalRatio: 0.5 },
+      { id: "c3", mode: "audit", reason: "sample", requestedAt: now - 3 * H, approvalRatio: 0.62, herdVerdict: "approved", triggers: ["narrow"] },
+    ];
+    const subjects = {
+      c1: ["Riverside Bike Repair", "14 Mill Lane, Freiburg"],
+      c2: ["Old Quarry Lookout", "Trail 7, Black Forest"],
+      c3: ["Café Sonnenhof", "Hauptstraße 12, Freiburg"],
+    };
+    const m = el("quorum-moderation", { lang: "en" });
+    m.client = { getSubmission: async () => open, vote: async () => {}, getQueue: async () => cases, decide: async () => {} };
+    m.subjectRenderer = (c) => { const [n, a] = subjects[c.id]; return el("div", {}, el("strong", {}, n), el("span", { style: "color:#555" }, ` · ${a}`)); };
+    stage.append(el("div", { class: "card" }, m));
+  }
+</script>
+</body>
+</html>
