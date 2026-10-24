@@ -133,3 +133,10 @@ npm test        # vitest, resolves workspace packages from source
 
 All tunable parameters live in `packages/core/src/config.ts`. Defaults are
 provisional and meant to be tuned via simulation.
+
+## License
+
+[MPL-2.0](./LICENSE). In short: you can use quorum in any project, including commercial,
+closed-source and paid products, without opening your own code. If you change quorum's own files
+and distribute the result (for example a fork), those changed files must stay under MPL-2.0 and
+be available as source.

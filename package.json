@@ -1,7 +1,7 @@
 {
   "name": "quorum",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Embeddable, service-free reputation-weighted voting building block",
   "type": "module",
   "workspaces": [
@@ -20,7 +20,8 @@
     "sweep": "node packages/sim/dist/sweep.js",
     "bundle": "npm run bundle -w quorum-ui",
     "example:minimal": "node examples/minimal/server.mjs",
-    "example:moderation": "node examples/with-moderation/server.mjs"
+    "example:moderation": "node examples/with-moderation/server.mjs",
+    "release:check": "npm run clean && npm run build && npm run bundle && npm test"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",
@@ -29,5 +30,6 @@
     "happy-dom": "^21.0.4",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
-  }
+  },
+  "license": "MPL-2.0"
 }

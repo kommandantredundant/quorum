@@ -1,7 +1,26 @@
 {
   "name": "quorum-ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Framework-free web components for quorum: vote display and moderation queue. No runtime dependencies.",
+  "license": "MPL-2.0",
+  "author": "kommandantredundant",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kommandantredundant/quorum.git",
+    "directory": "packages/ui"
+  },
+  "homepage": "https://github.com/kommandantredundant/quorum#readme",
+  "bugs": {
+    "url": "https://github.com/kommandantredundant/quorum/issues"
+  },
+  "keywords": [
+    "quorum",
+    "web-components",
+    "custom-elements",
+    "voting",
+    "moderation",
+    "ui"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,12 +35,17 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.map"
   ],
   "sideEffects": [
     "./dist/bundle.js"
   ],
   "scripts": {
-    "bundle": "esbuild src/bundle.ts --bundle --format=esm --minify --target=es2020 --outfile=dist/quorum-ui.min.js"
+    "bundle": "esbuild src/bundle.ts --bundle --format=esm --minify --target=es2020 --outfile=dist/quorum-ui.min.js",
+    "prepublishOnly": "tsc -b && npm run bundle"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

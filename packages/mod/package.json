@@ -1,12 +1,47 @@
 {
   "name": "quorum-mod",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Optional moderation layer for quorum-core. Not required to run the core.",
+  "license": "MPL-2.0",
+  "author": "kommandantredundant",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kommandantredundant/quorum.git",
+    "directory": "packages/mod"
+  },
+  "homepage": "https://github.com/kommandantredundant/quorum#readme",
+  "bugs": {
+    "url": "https://github.com/kommandantredundant/quorum/issues"
+  },
+  "keywords": [
+    "quorum",
+    "moderation",
+    "reputation",
+    "community",
+    "queue",
+    "audit-log"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map"
+  ],
   "sideEffects": false,
-  "dependencies": { "quorum-core": "0.0.0" }
+  "dependencies": {
+    "quorum-core": "^0.1.0"
+  },
+  "scripts": {
+    "prepublishOnly": "tsc -b"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

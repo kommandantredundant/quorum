@@ -1,14 +1,55 @@
 {
   "name": "quorum-adapters",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Reference SQL storage for quorum-core / quorum-mod: SQLite (node:sqlite, better-sqlite3) and Postgres (pg, pglite).",
+  "license": "MPL-2.0",
+  "author": "kommandantredundant",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kommandantredundant/quorum.git",
+    "directory": "packages/adapters"
+  },
+  "homepage": "https://github.com/kommandantredundant/quorum#readme",
+  "bugs": {
+    "url": "https://github.com/kommandantredundant/quorum/issues"
+  },
+  "keywords": [
+    "quorum",
+    "sqlite",
+    "postgres",
+    "storage",
+    "reputation",
+    "voting"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map"
+  ],
   "sideEffects": false,
-  "dependencies": { "quorum-core": "0.0.0" },
-  "peerDependencies": { "quorum-mod": "0.0.0" },
-  "peerDependenciesMeta": { "quorum-mod": { "optional": true } }
+  "dependencies": {
+    "quorum-core": "^0.1.0"
+  },
+  "peerDependencies": {
+    "quorum-mod": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "quorum-mod": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "prepublishOnly": "tsc -b"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
