@@ -1,0 +1,64 @@
+name: Release
+
+# Publishes all quorum packages to npm when a version tag is pushed:
+#   npm version 0.1.1 --workspaces --include-workspace-root --no-git-tag-version
+#   git commit -am "release 0.1.1" && git tag v0.1.1 && git push --follow-tags
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # required for npm provenance
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Tag must match the package version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version v${VERSION}" >&2
+            exit 1
+          fi
+          for p in core mod adapters http ui; do
+            V=$(node -p "require('./packages/$p/package.json').version")
+            if [ "$V" != "$VERSION" ]; then
+              echo "packages/$p is at $V, expected $VERSION" >&2
+              exit 1
+            fi
+          done
+
+      - run: npm ci
+
+      - name: Build, bundle and test
+        run: npm run release:check
+
+      - name: Publish (dependency order, skips versions that already exist)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for p in core mod adapters http ui; do
+            NAME=$(node -p "require('./packages/$p/package.json').name")
+            VERSION=$(node -p "require('./packages/$p/package.json').version")
+            if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+              echo "$NAME@$VERSION already on npm, skipping"
+              continue
+            fi
+            npm publish -w "$NAME" --provenance --access public
+          done
