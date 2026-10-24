@@ -52,7 +52,11 @@ jobs:
       - name: Publish (dependency order, skips versions that already exist)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          REPO_PRIVATE: ${{ github.event.repository.private }}
         run: |
+          # npm provenance only works for public repositories
+          PROVENANCE=""
+          if [ "$REPO_PRIVATE" = "false" ]; then PROVENANCE="--provenance"; fi
           for p in core mod adapters http ui; do
             NAME=$(node -p "require('./packages/$p/package.json').name")
             VERSION=$(node -p "require('./packages/$p/package.json').version")
@@ -60,5 +64,5 @@ jobs:
               echo "$NAME@$VERSION already on npm, skipping"
               continue
             fi
-            npm publish -w "$NAME" --provenance --access public
+            npm publish -w "$NAME" $PROVENANCE --access public
           done
