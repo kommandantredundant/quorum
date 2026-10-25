@@ -8,9 +8,10 @@ This gets a vote box and, optionally, a moderation queue into your own site. You
 
 There is no central service: everything runs inside your backend and your database.
 
-> **Status:** the packages are at version 0.0.0 and not published to npm yet. Use them from this
-> repository (`npm install` and `npm run build`, then depend on the workspace packages or copy
-> `packages/*`). The two runnable examples below work out of the box.
+> **Install:** the packages are on npm (version 0.1.0):
+> `npm install quorum-core quorum-mod quorum-adapters quorum-http quorum-ui` (take only what you
+> need; `quorum-mod` is optional). The two runnable examples below use the workspace packages of
+> this repository instead.
 
 ## The five steps
 

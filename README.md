@@ -4,6 +4,9 @@ Embeddable, service-free building block for reputation-weighted community voting
 (e.g. rating points of interest). Runs inside the host website's own backend and
 database. No central service.
 
+**This is an LLM-generated project:** the code, tests and documentation were written by an LLM
+(Claude). Review it and test it for your use case before relying on it.
+
 ## What it looks like
 
 The components are plain web components (`<quorum-vote>`, `<quorum-moderation>`) that live inside
@@ -69,7 +72,19 @@ Two runnable examples: `npm run example:minimal` and `npm run example:moderation
 - [Integration](docs/integration.md): trust boundary, storage, routes, interim result, abuse protection.
 - [UI components](docs/ui.md): attributes, events, theming.
 
-> The packages are at version 0.0.0 and not published to npm yet.
+## Install
+
+The packages are published on npm (version 0.1.0):
+
+```sh
+npm install quorum-core            # required
+npm install quorum-mod             # optional: moderation
+npm install quorum-adapters        # optional: SQLite and Postgres storage
+npm install quorum-http quorum-ui  # optional: route handler and web components
+```
+
+`quorum-mod` and `quorum-http` need `quorum-core`. Without moderation, the vote is decided by
+weight at the end of the window.
 
 ## Is it a good fit for your community?
 
