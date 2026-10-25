@@ -24,7 +24,7 @@
     "release:check": "npm run clean && npm run build && npm run bundle && npm test"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.10",
+    "@electric-sql/pglite": "^0.5.11",
     "@types/node": "^22.0.0",
     "esbuild": "^0.28.2",
     "happy-dom": "^21.0.4",
