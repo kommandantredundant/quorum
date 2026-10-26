@@ -1,6 +1,6 @@
 {
   "name": "quorum-http",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Route handler for quorum on web-standard Request/Response, plus a Node http adapter. Matches the routes quorum-ui expects.",
   "license": "MPL-2.0",
   "author": "kommandantredundant",

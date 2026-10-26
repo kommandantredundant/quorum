@@ -1,6 +1,6 @@
 {
   "name": "quorum-mod",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Optional moderation layer for quorum-core. Not required to run the core.",
   "license": "MPL-2.0",
   "author": "kommandantredundant",
