@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Docs: new page `docs/end-users.md` with ready-to-paste explanations for end users (English and German)
+- Docs: Node requirements and version numbers updated, warning about `processDue()` in getting started
+
 ## 0.1.1
 
 - CI auf Node 22 (Build, Typecheck, Bundle, Tests bei Push und PR)

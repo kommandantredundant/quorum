@@ -2,13 +2,14 @@
 
 This gets a vote box and, optionally, a moderation queue into your own site. You need:
 
-- a backend you control (Node 20+ in the examples; the core itself is plain TypeScript),
+- a backend you control (the examples need Node 22.5+ because they use the built-in `node:sqlite`;
+  the packages themselves are plain JavaScript and also run on Node 20 with `better-sqlite3` or Postgres),
 - a SQL database (SQLite or Postgres; others work through the storage interface),
 - your own login, so the module knows who is calling.
 
 There is no central service: everything runs inside your backend and your database.
 
-> **Install:** the packages are on npm (version 0.1.0):
+> **Install:** the packages are on npm (current version 0.1.1):
 > `npm install quorum-core quorum-mod quorum-adapters quorum-http quorum-ui` (take only what you
 > need; `quorum-mod` is optional). The two runnable examples below use the workspace packages of
 > this repository instead.
@@ -74,6 +75,9 @@ Build the bundle with `npm run bundle`. To create a submission from your own cod
 Results are decided when the voting window ends. This happens lazily whenever the submission is read,
 and you should additionally call `quorum.processDue()` from a timer or cron job.
 
+> **Don't skip the timer.** Without `processDue()`, a submission nobody opens stays undecided, its
+> author gets no result and no reputation is booked. Every few minutes is plenty.
+
 ## With moderation
 
 Moderation is a separate, optional package. Leave it out and the core decides by weight on its own.
@@ -115,9 +119,16 @@ produce a case for the moderators.
 
 ![Vote box before voting](screenshots/01-vote-before.png)
 
+## Before you go live
+
+Your users will see weighted percentages, results that arrive days later and a reputation that can
+go down. Without a short explanation this looks arbitrary. [end-users.md](end-users.md) has texts you
+can put on your site as they are.
+
 ## Next
 
 - [How it works](concepts.md): weights, windows, bands, reputation, moderation.
 - [Configuration](configuration.md): every parameter with its default.
 - [Integration](integration.md): trust boundary, storage, routes, interim result, abuse protection.
 - [UI components](ui.md): attributes, events, theming.
+- [Explaining it to your users](end-users.md): ready-to-paste texts for your site.

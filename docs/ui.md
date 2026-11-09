@@ -93,6 +93,9 @@ For deeper changes use `::part(root | title | bar | bar-yes | bar-no | legend | 
 German and English are built in. Override single texts with `configureQuorum({ labels })` or the
 element's `labels` property. Texts from the server are always shown as text, never as HTML.
 
+The components explain their own states, but not why voting works this way. Put a short explanation
+next to them, see [end-users.md](end-users.md).
+
 ## Accessibility
 
 The bar has a text alternative, buttons are at least 44 px high and have a visible focus ring, status

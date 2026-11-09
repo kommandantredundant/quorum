@@ -71,10 +71,11 @@ Two runnable examples: `npm run example:minimal` and `npm run example:moderation
 - [Configuration](docs/configuration.md): every parameter with its default.
 - [Integration](docs/integration.md): trust boundary, storage, routes, interim result, abuse protection.
 - [UI components](docs/ui.md): attributes, events, theming.
+- [Explaining it to your users](docs/end-users.md): short, ready-to-paste texts for your site (English and German).
 
 ## Install
 
-The packages are published on npm (version 0.1.0):
+The packages are published on npm (current version 0.1.1):
 
 ```sh
 npm install quorum-core            # required
@@ -139,6 +140,8 @@ It fits if all five hold: accounts cost something, answers are verifiable, there
 incentive to cheat, at least 3 moderators are available, and days instead of seconds are fine.
 
 ## Development
+
+Development and tests need **Node 22.12 or newer** (the tests use `node:sqlite`, Vitest 5 needs 22.12).
 
 ```sh
 npm install

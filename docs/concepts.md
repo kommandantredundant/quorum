@@ -61,3 +61,8 @@ It does not prevent fake accounts: a handful of fresh accounts can outvote the t
 that typically rate an item. Account creation needs a hurdle on your side, see
 [integration.md](integration.md#protecting-against-abuse). Which communities it suits is described
 in the [README](../README.md#is-it-a-good-fit-for-your-community).
+
+## Explaining it to your users
+
+The ideas above are what your users need to understand, in plain words. Ready-to-paste texts in
+English and German are in [end-users.md](end-users.md).
