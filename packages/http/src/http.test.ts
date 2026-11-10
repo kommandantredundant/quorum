@@ -59,6 +59,16 @@ describe("quorum-http with quorum-ui client", () => {
     await expect(client("carl").vote(id, "maybe" as never)).rejects.toMatchObject({ code: "invalid", status: 400 });
   });
 
+  it("serves the visitor's own profile at /me", async () => {
+    const { client, submit } = await setup();
+    const id = await submit("au");
+    await client("bob").vote(id, "approve");
+    await expect(client(null).getProfile!()).rejects.toMatchObject({ code: "unauthenticated", status: 401 });
+    const me = await client("bob").getProfile!(5);
+    expect(me).toMatchObject({ userId: "bob", reputation: 0, maxWeight: 20, recent: [{ submissionId: id, role: "voter", choice: "approve", matched: null }] });
+    expect((await client("au").getProfile!()).recent).toMatchObject([{ role: "author", payload: { name: "Cafe" } }]);
+  });
+
   it("runs the moderation flow end to end", async () => {
     const { client, submit, quorum, at } = await setup();
     const id = await submit("au");

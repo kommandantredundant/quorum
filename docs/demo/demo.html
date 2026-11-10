@@ -7,7 +7,7 @@
   <!--
     Self-contained demo of quorum-ui with a fake client (no server needed).
     Build first:  npm run build && npm run bundle
-    Serve the repo root (e.g. `python3 -m http.server`) and open  docs/demo/demo.html#before | #after | #states | #moderation
+    Serve the repo root (e.g. `python3 -m http.server`) and open  docs/demo/demo.html#before | #after | #states | #moderation | #profile
   -->
   <style>
     body { margin: 0; background: #eef0f3; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f24; }
@@ -93,6 +93,19 @@
     m.client = { getSubmission: async () => open, vote: async () => {}, getQueue: async () => cases, decide: async () => {} };
     m.subjectRenderer = (c) => { const [n, a] = subjects[c.id]; return el("div", {}, el("strong", {}, n), el("span", { style: "color:#555" }, ` · ${a}`)); };
     stage.append(el("div", { class: "card" }, m));
+  }
+
+  if (scene === "profile") {
+    const recent = [
+      { submissionId: "s1", subjectId: "poi-1", payload: { name: "Café Sonnenhof" }, role: "voter", choice: "approve", status: "open", matched: null, at: now - 3 * H },
+      { submissionId: "s2", subjectId: "poi-2", payload: { name: "Riverside Bike Repair" }, role: "author", status: "resolved", verdict: "approved", matched: true, at: now - 30 * H },
+      { submissionId: "s3", subjectId: "poi-3", payload: { name: "Old Quarry Lookout" }, role: "voter", choice: "reject", status: "resolved", verdict: "approved", matched: false, at: now - 52 * H },
+      { submissionId: "s4", subjectId: "poi-4", payload: { name: "Mill Lane Charging Point" }, role: "voter", choice: "approve", status: "resolved", verdict: "approved", matched: true, at: now - 75 * H },
+    ];
+    const p = el("quorum-profile", { lang: "en" });
+    p.client = { getSubmission: async () => open, vote: async () => {}, getProfile: async () => ({ userId: "me", reputation: 11, weight: 1.1 ** 11, maxWeight: 20, baseWeight: 1, recent }) };
+    p.subjectHref = (a) => `#${a.subjectId}`;
+    stage.append(el("div", { class: "card" }, p));
   }
 </script>
 </body>

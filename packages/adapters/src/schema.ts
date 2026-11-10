@@ -21,6 +21,7 @@ export const coreSchema: readonly string[] = [
   )`,
   `CREATE INDEX IF NOT EXISTS quorum_submissions_due ON quorum_submissions (status, window_ends_at)`,
   `CREATE INDEX IF NOT EXISTS quorum_submissions_subject ON quorum_submissions (subject_id)`,
+  `CREATE INDEX IF NOT EXISTS quorum_submissions_author ON quorum_submissions (author_id, created_at)`,
   `CREATE TABLE IF NOT EXISTS quorum_votes (
     submission_id TEXT NOT NULL,
     voter_id TEXT NOT NULL,
@@ -30,6 +31,7 @@ export const coreSchema: readonly string[] = [
     PRIMARY KEY (submission_id, voter_id)
   )`,
   `CREATE INDEX IF NOT EXISTS quorum_votes_voter ON quorum_votes (voter_id)`,
+  `CREATE INDEX IF NOT EXISTS quorum_votes_voter_time ON quorum_votes (voter_id, cast_at)`,
   `CREATE TABLE IF NOT EXISTS quorum_reputation (
     user_id TEXT PRIMARY KEY,
     value DOUBLE PRECISION NOT NULL,

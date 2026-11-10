@@ -9,7 +9,7 @@ database. No central service.
 
 ## What it looks like
 
-The components are plain web components (`<quorum-vote>`, `<quorum-moderation>`) that live inside
+The components are plain web components (`<quorum-vote>`, `<quorum-profile>`, `<quorum-moderation>`) that live inside
 your own page and take their colours, radius and font from CSS variables.
 
 **Before voting.** By default the interim result stays hidden until the visitor has voted, so nobody
@@ -25,6 +25,11 @@ can simply copy the leading side (`show-interim="after-vote"`; `always` and `aft
 
 ![Four vote boxes: approved, rejected, under review, custom theme](docs/screenshots/03-states-and-theming.png)
 
+**Profile.** Members see their own trust as a level, with a short explanation and whether their recent
+votes and suggestions matched the final decision. Never anyone else's data.
+
+![Profile with trust level "Trusted" and four recent votes and suggestions](docs/screenshots/05-profile.png)
+
 **Moderation queue** (optional package `quorum-mod` plus the UI). Cases that need a decision come first,
 spot checks after them. The host decides what a case shows.
 
@@ -32,7 +37,7 @@ spot checks after them. The host decides what a case shows.
 
 The screenshots come from `docs/demo/demo.html`, a demo page with a fake client (no server needed).
 To open it yourself: `npm run build && npm run bundle`, serve the repository root (for example
-`python3 -m http.server`) and open `docs/demo/demo.html#before`, `#after`, `#states` or `#moderation`.
+`python3 -m http.server`) and open `docs/demo/demo.html#before`, `#after`, `#states`, `#profile` or `#moderation`.
 To regenerate the images: `python3 docs/screenshots.py` (needs `pip install playwright`).
 
 ## Packages
@@ -42,7 +47,7 @@ To regenerate the images: `python3 docs/screenshots.py` (needs `pip install play
 | `quorum-core` | Weights, evaluation, reputation updates, lifecycle, orchestration. No I/O of its own. | yes |
 | `quorum-adapters` | SQL storage and schema for SQLite and Postgres. | one storage |
 | `quorum-http` | Route handler on web-standard `Request`/`Response`, plus a Node adapter. | for the UI |
-| `quorum-ui` | Web components `<quorum-vote>` and `<quorum-moderation>`, no dependencies. | optional |
+| `quorum-ui` | Web components `<quorum-vote>`, `<quorum-profile>` and `<quorum-moderation>`, no dependencies. | optional |
 | `quorum-mod` | Moderation queue, decisions, spot checks, audit log. | optional |
 | `quorum-sim` | Simulation for tuning and stress tests (not shipped). | no |
 
@@ -53,12 +58,13 @@ so the core runs fully without it.
 
 ```js
 const quorum = createQuorum({ storage, hooks: { currentUser: (req) => mySession(req)?.userId ?? null } });
-const api = createRouteHandler({ quorum });          // serves the four routes the UI needs
+const api = createRouteHandler({ quorum });          // serves the routes the UI needs
 ```
 
 ```html
 <script type="module" src="/quorum-ui.min.js"></script>
 <quorum-vote submission-id="…"></quorum-vote>
+<quorum-profile></quorum-profile>   <!-- on a profile page -->
 ```
 
 Two runnable examples: `npm run example:minimal` and `npm run example:moderation` (after

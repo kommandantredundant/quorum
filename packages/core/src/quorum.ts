@@ -74,6 +74,39 @@ export interface SubmissionView extends InterimResult {
   canVote: boolean;
 }
 
+/** One entry of a member's own history. Only ever shown to that member. */
+export interface ProfileActivity {
+  submissionId: SubmissionId;
+  subjectId: SubjectId;
+  /** Host content of the submission, so the page can show a name. */
+  payload?: unknown;
+  role: "voter" | "author";
+  /** The member's vote (role "voter" only). */
+  choice?: VoteChoice;
+  status: SubmissionStatus;
+  /** Final verdict, once resolved. */
+  verdict?: Verdict;
+  /** true / false once resolved: did the final verdict match the vote (or approve the submission)? null while open. */
+  matched: boolean | null;
+  /** When the member voted or submitted. */
+  at: Timestamp;
+}
+
+/** What `<quorum-profile>` shows: the visitor's own trust and history. Never anyone else's. */
+export interface ProfileView {
+  userId: UserId;
+  /** Raw reputation. Shown as a level, not as a number, in the default UI. */
+  reputation: number;
+  /** Current vote weight, derived from reputation. */
+  weight: number;
+  /** Highest possible weight (`weight.cap`), or null if uncapped. */
+  maxWeight: number | null;
+  /** Weight of a new member (`weight.base`). */
+  baseWeight: number;
+  /** Newest first. Null if the storage does not support history. */
+  recent: ProfileActivity[] | null;
+}
+
 export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: QuorumOptions<S, Ctx>) {
   const { storage, hooks } = options;
   const cfg = defineConfig(options.config);
@@ -218,5 +251,48 @@ export function createQuorum<S extends CoreStorage, Ctx = unknown>(options: Quor
     return { ...interim, myVote, canVote };
   }
 
-  return { submit, vote, processSubmission, processDue, getInterimResult, getView, config: cfg };
+  function activityOf(s: Submission, role: "voter" | "author", at: Timestamp, choice?: VoteChoice): ProfileActivity {
+    const verdict = s.status === "resolved" ? s.outcome.verdict : undefined;
+    const wanted: Verdict = role === "author" || choice === "approve" ? "approved" : "rejected";
+    return {
+      submissionId: s.id,
+      subjectId: s.subjectId,
+      ...(s.payload !== undefined && { payload: s.payload }),
+      role,
+      ...(choice && { choice }),
+      status: s.status,
+      ...(verdict && { verdict }),
+      matched: verdict ? verdict === wanted : null,
+      at,
+    };
+  }
+
+  /** The logged-in member's own trust level and recent history. Requires login. */
+  async function getProfile(ctx: Ctx, options: { limit?: number } = {}): Promise<ProfileView> {
+    const user = await requireUser(ctx);
+    const limit = Math.max(1, Math.min(50, Math.floor(options.limit ?? 10)));
+    const reputation = (await storage.getReputation(user))?.value ?? cfg.reputation.startValue;
+
+    let recent: ProfileActivity[] | null = null;
+    if (storage.listVotesByVoter && storage.listSubmissionsByAuthor) {
+      const [votes, authored] = await Promise.all([storage.listVotesByVoter(user, limit), storage.listSubmissionsByAuthor(user, limit)]);
+      const items: ProfileActivity[] = authored.map(({ submission: s }) => activityOf(s, "author", s.createdAt));
+      for (const v of votes) {
+        const stored = await storage.getSubmission(v.submissionId);
+        if (stored) items.push(activityOf(stored.submission, "voter", v.castAt, v.choice));
+      }
+      recent = items.sort((a, b) => b.at - a.at || a.submissionId.localeCompare(b.submissionId)).slice(0, limit);
+    }
+
+    return {
+      userId: user,
+      reputation,
+      weight: voteWeight(reputation, cfg),
+      maxWeight: Number.isFinite(cfg.weight.cap) ? cfg.weight.cap : null,
+      baseWeight: cfg.weight.base,
+      recent,
+    };
+  }
+
+  return { submit, vote, processSubmission, processDue, getInterimResult, getView, getProfile, config: cfg };
 }

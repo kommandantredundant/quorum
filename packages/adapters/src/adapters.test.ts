@@ -77,6 +77,37 @@ describe.each(backends)("%s", (_name, make) => {
     expect((await storage.getReputation("d"))?.value).toBe(-1.5);
   });
 
+  it("getProfile: own trust and history only, with matched once resolved", async () => {
+    const { quorum, as, at } = await setup(make);
+    await expect(quorum.getProfile(as(null))).rejects.toMatchObject({ code: "unauthenticated" });
+    expect(await quorum.getProfile(as("a"))).toEqual({ userId: "a", reputation: 0, weight: 1, maxWeight: 20, baseWeight: 1, recent: [] });
+
+    const s1 = await quorum.submit(as("au"), { subjectId: "poi-1", payload: { name: "Cafe" } });
+    at(1);
+    for (const [u, c] of [["a", "approve"], ["b", "approve"], ["c", "approve"], ["d", "reject"]] as const) await quorum.vote(as(u), s1.id, c);
+    at(2);
+    const s2 = await quorum.submit(as("x"), { subjectId: "poi-2" });
+    at(3);
+    await quorum.vote(as("d"), s2.id, "approve");
+
+    const open = await quorum.getProfile(as("d"));
+    expect(open.recent).toEqual([
+      { submissionId: s2.id, subjectId: "poi-2", role: "voter", choice: "approve", status: "open", matched: null, at: 3 * H },
+      { submissionId: s1.id, subjectId: "poi-1", payload: { name: "Cafe" }, role: "voter", choice: "reject", status: "open", matched: null, at: 1 * H },
+    ]);
+
+    at(72);
+    await quorum.processDue();
+    const d = await quorum.getProfile(as("d"));
+    expect(d).toMatchObject({ reputation: -1.5, weight: 1 });
+    expect(d.recent?.find((r) => r.submissionId === s1.id)).toMatchObject({ verdict: "approved", matched: false });
+    const au = await quorum.getProfile(as("au"));
+    expect(au).toMatchObject({ reputation: 1, recent: [{ role: "author", verdict: "approved", matched: true }] });
+    expect(au.weight).toBeCloseTo(1.1);
+    expect(JSON.stringify(au)).not.toMatch(/"[abcd]"/); // nobody else's votes or IDs
+    expect((await quorum.getProfile(as("a"), { limit: 1 })).recent).toHaveLength(1);
+  });
+
   it("enforces identity, one vote, no self-vote and the window on the server", async () => {
     const { quorum, as, at } = await setup(make);
     const s = await quorum.submit(as("au"), { subjectId: "p" });

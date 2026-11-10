@@ -53,4 +53,18 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 li.case { border: 1px solid var(--quorum-border, color-mix(in srgb, currentColor 22%, transparent)); border-radius: var(--quorum-radius, 10px); padding: var(--quorum-padding, 14px); }
 .case-title { margin: 0; font-weight: 600; }
 .subject { margin: 8px 0 0; }
+.level { margin: 0; font-size: 1.125rem; font-weight: 600; }
+.meter { display: flex; gap: 4px; margin: 8px 0 4px; }
+.meter span { flex: 1; height: var(--quorum-bar-height, 10px); border-radius: 999px; background: var(--quorum-track, color-mix(in srgb, currentColor 14%, transparent)); }
+.meter span.on { background: var(--quorum-level, var(--_yes)); }
+.explain { margin: 10px 0 0; font-size: .875rem; opacity: .85; line-height: 1.45; }
+.recent-title { margin: 16px 0 8px; font-size: .9375rem; font-weight: 600; }
+ul.recent { gap: 0; }
+ul.recent li { padding: 8px 0; border-top: 1px solid var(--quorum-border, color-mix(in srgb, currentColor 14%, transparent)); }
+.item-subject { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.item-subject a { color: inherit; }
+.item-meta { margin: 2px 0 0; font-size: .8125rem; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.outcome.matched { color: var(--_yes); }
+.outcome.not-matched { opacity: .85; }
+.outcome.pending { opacity: .75; }
 `;

@@ -48,7 +48,7 @@ import { createQuorum } from "quorum-core";
 const quorum = createQuorum({ storage, hooks });   // defaults, see configuration.md
 ```
 
-**4. Routes.** The UI components talk to four routes. `createRouteHandler` serves them on web-standard
+**4. Routes.** The UI components talk to a handful of routes. `createRouteHandler` serves them on web-standard
 `Request`/`Response`; `nodeListener` connects it to Node's `http` server or Express.
 
 ```js
@@ -68,6 +68,9 @@ handler as it is, see [integration.md](integration.md).
 <script type="module" src="/quorum-ui.min.js"></script>
 <quorum-vote submission-id="…" lang="en"></quorum-vote>
 ```
+
+On a profile or account page, `<quorum-profile></quorum-profile>` shows members their own trust level
+and recent activity.
 
 Build the bundle with `npm run bundle`. To create a submission from your own code:
 `await quorum.submit(request, { subjectId: "poi-42", payload: { … } })`.

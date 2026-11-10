@@ -7,7 +7,8 @@ There is no central service. Everything runs in your backend, against your datab
 ```
 browser                     your backend                               your database
 <quorum-vote>  ──fetch──▶  createRouteHandler ─▶ createQuorum ─▶ storage adapter ─▶ SQLite / Postgres
-<quorum-moderation>                                   └─ createModeration (optional)
+<quorum-profile>                                      └─ createModeration (optional)
+<quorum-moderation>
 ```
 
 | Package | Role |
@@ -69,6 +70,7 @@ servers (a decision is booked exactly once):
 | `GET /submissions/:id` | The view for the current visitor: status, window end, weights, own vote, whether voting is possible. |
 | `POST /submissions` | Create a submission (`{ subjectId, payload? }`), answers `201 { submissionId }`. |
 | `POST /submissions/:id/vote` | `{ choice: "approve" \| "reject" }`, answers 204. |
+| `GET /me?limit=10` | The logged-in member's own trust and recent history (`getProfile`). 401 when not logged in. |
 | `GET /mod/queue` | Open cases for the current moderator. Only with `moderation`. |
 | `POST /mod/cases/:id/decision` | `{ verdict: "approved" \| "rejected" }`, answers 204. Decides a pending case or revises a decided one. |
 
@@ -89,7 +91,7 @@ export { handle as GET, handle as POST };
 app.all("/api/quorum/*", async (c) => (await api(c.req.raw)) ?? c.notFound());
 ```
 
-You can also skip the handler and call `quorum.getView`, `quorum.vote`, `quorum.submit` and
+You can also skip the handler and call `quorum.getView`, `quorum.vote`, `quorum.submit`, `quorum.getProfile` and
 `mod.queueView`, `mod.decide` from your own routes; they take the same `ctx` that `currentUser` receives.
 
 ## Showing the interim result
@@ -136,7 +138,8 @@ Protection has to come from you:
 
 ## Data and privacy
 
-Reputation is stored per user ID of your site, together with all votes. The module has no function
+Reputation is stored per user ID of your site, together with all votes. `GET /me` shows a member
+only their own reputation and history, never anyone else's. The module has no function
 to delete a member yet: to remove one, delete or anonymise their rows by user ID in
 `quorum_votes`, `quorum_reputation` and `author_id` in `quorum_submissions`. Past decisions stay as
 they are.

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- New component `<quorum-profile>`: a member's own trust level (five steps, never the raw number), a short explanation and recent votes and suggestions with whether they matched the final decision
+- Core: `getProfile(ctx, { limit })`; optional storage methods `listVotesByVoter` and `listSubmissionsByAuthor` (implemented in the SQL adapters, with two new indexes created by the migration)
+- HTTP: new route `GET /me`
 - Docs: new page `docs/end-users.md` with ready-to-paste explanations for end users (English and German)
 - Docs: Node requirements and version numbers updated, warning about `processDue()` in getting started
 

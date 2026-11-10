@@ -189,10 +189,10 @@ keep that sentence if your site offers a way to contact them.
 
 ## Trust level (profile page)
 
-The planned `<quorum-profile>` component (see below) will show a member their own trust level. Until
-then, you can read the reputation from your storage and show it yourself. Show it as a **level or a
-bar, not as a raw number**: a number like "‑1.5" invites comparison and frustration, a level reads as
-progress.
+The `<quorum-profile>` component (see [ui.md](ui.md#quorum-profile)) shows a member their own trust
+level with this explanation built in. If you build your own display instead, show it as a **level or
+a bar, not as a raw number**: a number like "‑1.5" invites comparison and frustration, a level reads
+as progress.
 
 **English**
 > **Your trust level.** Your votes count more the more often you've been right. It grows when the
@@ -204,7 +204,7 @@ progress.
 > Community deine Stimmen und Vorschläge bestätigt, und sinkt ein wenig, wenn nicht. Wie lange du
 > schon dabei bist, spielt keine Rolle.
 
-A possible mapping to levels for the default weights (weight = 1.1^reputation, capped at 20):
+The levels `<quorum-profile>` uses, for the default weights (weight = 1.1^reputation, capped at 20):
 
 | Reputation | Weight | Suggested level |
 | --- | --- | --- |
@@ -224,12 +224,9 @@ Never show other members' levels next to their votes. That would undo the anonym
   minority is not a mistake, it just isn't rewarded.
 - **Explain the delay up front.** Waiting is fine when people know it's coming.
 
-## Planned: `<quorum-profile>`
+## `<quorum-profile>`
 
-A third UI component is planned. It will let a logged-in member see:
-
-- their own trust level (as a level or bar, as above),
-- their recent votes and submissions and whether they matched the final decision,
-- a short explanation, using the texts from this page.
-
-Until it exists, everything above works with your own profile page.
+The component puts the texts from this page into practice: it shows a logged-in member their trust
+level, the explanation above, and their recent votes and suggestions with "Matched the final
+decision" or "Didn't match the final decision". It follows the tone guide: the word is "trust", a
+mismatch is not shown as an error, and nobody else's data appears. See [ui.md](ui.md#quorum-profile).

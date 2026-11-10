@@ -37,6 +37,7 @@ try:
 
         shot("states", "03-states-and-theming.png", "quorum-vote .bar")
         shot("moderation", "04-moderation-queue.png", "quorum-moderation li.case")
+        shot("profile", "05-profile.png", "quorum-profile ul.recent li")
         browser.close()
 finally:
     server.terminate()

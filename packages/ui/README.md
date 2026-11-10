@@ -1,6 +1,6 @@
 # quorum-ui
 
-Framework-free web components for quorum: `<quorum-vote>` and `<quorum-moderation>`. No runtime dependencies. Colours, radius and font come from CSS variables.
+Framework-free web components for quorum: `<quorum-vote>`, `<quorum-profile>` (a member's own trust level and history) and `<quorum-moderation>`. No runtime dependencies. Colours, radius and font come from CSS variables.
 
 A single-file bundle (`dist/quorum-ui.min.js`) is included for use via a plain `<script type="module">`.
 

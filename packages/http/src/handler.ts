@@ -8,6 +8,7 @@ import { QuorumError } from "quorum-core";
  *   GET  {base}/submissions/:id            -> SubmissionView
  *   POST {base}/submissions                {subjectId, payload?} -> 201 {submissionId}
  *   POST {base}/submissions/:id/vote       {choice}   -> 204
+ *   GET  {base}/me?limit=10                -> ProfileView (own trust and history; 401 if not logged in)
  *   GET  {base}/mod/queue                  -> ModCaseView[]          (only if `moderation` is given)
  *   POST {base}/mod/cases/:id/decision     {verdict}  -> 204         (only if `moderation` is given)
  *
@@ -18,6 +19,7 @@ export interface QuorumApi<Ctx> {
   getView(ctx: Ctx, id: string): Promise<object>;
   vote(ctx: Ctx, id: string, choice: "approve" | "reject"): Promise<void>;
   submit(ctx: Ctx, input: { subjectId: string; payload?: unknown }): Promise<{ id: string }>;
+  getProfile?(ctx: Ctx, options?: { limit?: number }): Promise<object>;
 }
 
 export interface ModerationApi<Ctx> {
@@ -111,6 +113,12 @@ export function createRouteHandler<Ctx = Request>(options: RouteHandlerOptions<C
           await options.quorum.vote(ctx, decode(b!), body.choice as "approve" | "reject");
           return noContent();
         }
+      }
+      if (a === "me" && method === "GET" && parts.length === 1 && options.quorum.getProfile) {
+        const raw = url.searchParams.get("limit");
+        const limit = raw === null ? undefined : Number(raw);
+        if (limit !== undefined && !Number.isFinite(limit)) throw new QuorumError("invalid", "limit must be a number");
+        return json(200, await options.quorum.getProfile(ctx, limit === undefined ? {} : { limit }));
       }
       if (a === "mod" && options.moderation) {
         if (method === "GET" && b === "queue" && parts.length === 2) return json(200, await options.moderation.queueView(ctx));

@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
 import {
-  createHttpClient, interimVisible, parseMode, phaseOf, QuorumUiError, register, shares,
-  type ModCaseView, type QuorumClient, type SubmissionView,
-  type QuorumModerationElement, type QuorumVoteElement,
+  createHttpClient, interimVisible, parseMode, phaseOf, QuorumUiError, register, shares, trustLevel,
+  type ModCaseView, type ProfileView, type QuorumClient, type SubmissionView,
+  type QuorumModerationElement, type QuorumProfileElement, type QuorumVoteElement,
 } from "./index.js";
 
 register();
@@ -118,6 +118,70 @@ describe("<quorum-moderation>", () => {
   });
 });
 
+describe("<quorum-profile>", () => {
+  const profile: ProfileView = {
+    userId: "me", reputation: 9, weight: 1.1 ** 9, maxWeight: 20, baseWeight: 1,
+    recent: [
+      { submissionId: "s1", subjectId: "poi-1", payload: { name: "<b>Café</b>" }, role: "voter", choice: "approve", status: "resolved", verdict: "approved", matched: true, at: 2 },
+      { submissionId: "s2", subjectId: "poi-2", role: "voter", choice: "reject", status: "resolved", verdict: "approved", matched: false, at: 1 },
+      { submissionId: "s3", subjectId: "poi-3", role: "author", status: "open", matched: null, at: 0 },
+    ],
+  };
+  const base = { getSubmission: async () => open, vote: async () => {} };
+  const mount = async (client: QuorumClient, attrs: Record<string, string> = {}) => {
+    const el = document.createElement("quorum-profile") as QuorumProfileElement;
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    el.client = client;
+    document.body.append(el);
+    await settle();
+    return el;
+  };
+
+  it("maps weight to five levels, never showing the raw number", () => {
+    const lv = (rep: number, cap: number | null = 20) => trustLevel({ weight: Math.min(cap ?? Infinity, 1.1 ** Math.max(0, rep)), baseWeight: 1, maxWeight: cap });
+    expect([lv(-3), lv(0), lv(1), lv(7), lv(8), lv(16), lv(17), lv(31), lv(32)]).toEqual([0, 0, 1, 1, 2, 2, 3, 3, 4]);
+    expect(lv(100, null)).toBe(3); // no cap: top level is never reached
+  });
+
+  it("shows level, explanation and history; text from the server is never parsed as HTML", async () => {
+    let asked: number | undefined;
+    const el = await mount({ ...base, getProfile: async (limit) => { asked = limit; return profile; } }, { lang: "en", limit: "3" });
+    const root = el.shadowRoot!;
+    expect(asked).toBe(3);
+    expect(root.querySelector(".level")?.textContent).toBe("Trusted");
+    expect(root.querySelector(".meter")?.getAttribute("aria-label")).toBe("Trust level 3 of 5: Trusted");
+    expect(root.querySelectorAll(".meter span.on")).toHaveLength(3);
+    expect(root.querySelector("section")!.textContent).not.toMatch(/\b9\b/); // no raw reputation
+    expect(root.querySelectorAll("ul.recent li")).toHaveLength(3);
+    expect(root.querySelector("ul.recent b")).toBeNull();
+    expect(root.textContent).toContain("<b>Café</b>");
+    expect(root.querySelector(".outcome.matched")?.textContent).toContain("Matched the final decision");
+    expect(root.querySelector(".outcome.not-matched")?.textContent).toBe("Didn't match the final decision");
+    expect(root.textContent).toContain("You suggested");
+    el.remove();
+  });
+
+  it("asks anonymous visitors to log in, uses German labels and custom links", async () => {
+    const anon = await mount({ ...base, getProfile: async () => { throw new QuorumUiError("unauthenticated", "Login required", 401); } }, { lang: "de" });
+    expect(anon.shadowRoot!.textContent).toContain("Melde dich an");
+    expect(anon.shadowRoot!.querySelector(".error")).toBeNull();
+    anon.remove();
+
+    const el = document.createElement("quorum-profile") as QuorumProfileElement;
+    el.setAttribute("lang", "de");
+    el.setAttribute("hide-explanation", "");
+    el.client = { ...base, getProfile: async () => profile };
+    el.subjectHref = (a) => `/map/${a.subjectId}`;
+    document.body.append(el);
+    await settle();
+    const root = el.shadowRoot!;
+    expect(root.querySelector(".level")?.textContent).toBe("Vertrauenswürdig");
+    expect(root.querySelector(".explain")).toBeNull();
+    expect(root.querySelector("ul.recent a")?.getAttribute("href")).toBe("/map/poi-1");
+    el.remove();
+  });
+});
+
 describe("createHttpClient", () => {
   it("calls the documented routes and maps errors", async () => {
     const seen: string[] = [];
@@ -132,6 +196,7 @@ describe("createHttpClient", () => {
     await client.getSubmission("a b");
     await client.vote("a b", "approve");
     await expect(client.vote("x", "reject")).rejects.toMatchObject({ code: "conflict", message: "You already voted", status: 409 });
-    expect(seen).toEqual(['GET /q/submissions/a%20b ', 'POST /q/submissions/a%20b/vote {"choice":"approve"}', 'POST /q/submissions/x/vote {"choice":"reject"}']);
+    await client.getProfile!(5);
+    expect(seen).toEqual(['GET /q/submissions/a%20b ', 'POST /q/submissions/a%20b/vote {"choice":"approve"}', 'POST /q/submissions/x/vote {"choice":"reject"}', 'GET /q/me?limit=5 ']);
   });
 });

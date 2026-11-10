@@ -28,6 +28,20 @@ export interface Labels {
   requestedAt: (date: string) => string;
   approvalRatio: (pct: number) => string;
   reasons: Record<"grey_zone" | "weight_conflict" | "sample" | "extension_limit", string>;
+  profileTitle: string;
+  profileExplain: string;
+  profileLoggedOut: string;
+  levels: [string, string, string, string, string];
+  levelLabel: (name: string, n: number, of: number) => string;
+  recentTitle: string;
+  recentEmpty: string;
+  youApproved: string;
+  youRejected: string;
+  youSubmitted: string;
+  matched: string;
+  notMatched: string;
+  pending: string;
+  underReview: string;
 }
 
 export const en: Labels = {
@@ -65,6 +79,21 @@ export const en: Labels = {
     sample: "Randomly selected for checking",
     extension_limit: "Too few votes after all extensions",
   },
+  profileTitle: "Your trust",
+  profileExplain:
+    "Your votes count more the more often you've been right. Your trust grows when the community confirms your votes and suggestions, and drops a little when it doesn't. It does not depend on how long you've been a member.",
+  profileLoggedOut: "Log in to see your trust level.",
+  levels: ["New", "Contributor", "Trusted", "Experienced", "Top level"],
+  levelLabel: (name, n, of) => `Trust level ${n} of ${of}: ${name}`,
+  recentTitle: "Your recent activity",
+  recentEmpty: "No votes or suggestions yet.",
+  youApproved: "You approved",
+  youRejected: "You rejected",
+  youSubmitted: "You suggested",
+  matched: "Matched the final decision",
+  notMatched: "Didn't match the final decision",
+  pending: "Voting still open",
+  underReview: "Being checked by a moderator",
 };
 
 export const de: Labels = {
@@ -102,6 +131,21 @@ export const de: Labels = {
     sample: "Zufällig zur Kontrolle ausgewählt",
     extension_limit: "Zu wenige Stimmen nach allen Verlängerungen",
   },
+  profileTitle: "Dein Vertrauen",
+  profileExplain:
+    "Deine Stimme zählt mehr, je öfter du richtig lagst. Dein Vertrauen wächst, wenn die Community deine Stimmen und Vorschläge bestätigt, und sinkt ein wenig, wenn nicht. Wie lange du schon dabei bist, spielt keine Rolle.",
+  profileLoggedOut: "Melde dich an, um dein Vertrauen zu sehen.",
+  levels: ["Neu", "Mitwirkend", "Vertrauenswürdig", "Erfahren", "Höchste Stufe"],
+  levelLabel: (name, n, of) => `Vertrauensstufe ${n} von ${of}: ${name}`,
+  recentTitle: "Deine letzten Aktivitäten",
+  recentEmpty: "Noch keine Stimmen oder Vorschläge.",
+  youApproved: "Du hast zugestimmt",
+  youRejected: "Du hast abgelehnt",
+  youSubmitted: "Du hast vorgeschlagen",
+  matched: "Passte zur endgültigen Entscheidung",
+  notMatched: "Passte nicht zur endgültigen Entscheidung",
+  pending: "Abstimmung läuft noch",
+  underReview: "Wird von einem Moderator geprüft",
 };
 
 /** Built-in languages: German for `de*`, English otherwise. Individual labels can be overridden. */

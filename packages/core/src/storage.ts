@@ -33,4 +33,11 @@ export interface CoreStorage {
 
   getReputation(userId: UserId): Promise<Reputation | null>;
   addReputation(userId: UserId, delta: number, startValue: number, now: Timestamp): Promise<void>;
+
+  /**
+   * Optional, used by `getProfile` for a member's own history. Without them the profile shows
+   * the trust level only. Both return the newest first, at most `limit` entries.
+   */
+  listVotesByVoter?(userId: UserId, limit: number): Promise<Vote[]>;
+  listSubmissionsByAuthor?(userId: UserId, limit: number): Promise<StoredSubmission[]>;
 }

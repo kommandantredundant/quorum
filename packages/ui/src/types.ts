@@ -34,10 +34,34 @@ export interface ModCaseView {
   triggers?: string[];
 }
 
+/** One entry of the visitor's own history (shape of quorum-core's `ProfileActivity`). */
+export interface ProfileActivity {
+  submissionId: string;
+  subjectId: string;
+  payload?: unknown;
+  role: "voter" | "author";
+  choice?: VoteChoice;
+  status: SubmissionStatus;
+  verdict?: Verdict;
+  matched: boolean | null;
+  at: number;
+}
+
+/** Shape returned by quorum-core's `getProfile`. Only ever the visitor's own data. */
+export interface ProfileView {
+  userId: string;
+  reputation: number;
+  weight: number;
+  maxWeight: number | null;
+  baseWeight: number;
+  recent: ProfileActivity[] | null;
+}
+
 /** What the components need from the host. `createHttpClient` is the ready-made implementation. */
 export interface QuorumClient {
   getSubmission(id: string): Promise<SubmissionView>;
   vote(id: string, choice: VoteChoice): Promise<void>;
   getQueue?(): Promise<ModCaseView[]>;
   decide?(id: string, verdict: Verdict): Promise<void>;
+  getProfile?(limit?: number): Promise<ProfileView>;
 }

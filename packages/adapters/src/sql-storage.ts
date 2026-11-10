@@ -107,6 +107,16 @@ export class SqlStorage implements CoreStorage, ModStorage {
     );
   }
 
+  async listVotesByVoter(userId: UserId, limit: number): Promise<Vote[]> {
+    const rows = await this.db.all(`SELECT * FROM quorum_votes WHERE voter_id = ? ORDER BY cast_at DESC, submission_id LIMIT ?`, [userId, limit]);
+    return rows.map((r) => ({ submissionId: str(r.submission_id), voterId: str(r.voter_id), choice: str(r.choice) as Vote["choice"], weight: num(r.weight), castAt: num(r.cast_at) }));
+  }
+
+  async listSubmissionsByAuthor(userId: UserId, limit: number): Promise<StoredSubmission[]> {
+    const rows = await this.db.all(`SELECT * FROM quorum_submissions WHERE author_id = ? ORDER BY created_at DESC, id LIMIT ?`, [userId, limit]);
+    return rows.map(submissionFromRow);
+  }
+
   // --- quorum-mod ---
 
   async insertCase(c: ModCase): Promise<boolean> {

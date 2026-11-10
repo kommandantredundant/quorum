@@ -1,4 +1,4 @@
-import type { ModCaseView, QuorumClient, SubmissionView, Verdict, VoteChoice } from "./types.js";
+import type { ModCaseView, ProfileView, QuorumClient, SubmissionView, Verdict, VoteChoice } from "./types.js";
 
 export class QuorumUiError extends Error {
   constructor(
@@ -28,6 +28,7 @@ const codeFromStatus = (s: number): string =>
  * Route contract the host implements (JSON in/out; errors as `{ code, message }` with a 4xx status):
  *   GET  {base}/submissions/:id             -> SubmissionView
  *   POST {base}/submissions/:id/vote        {choice}   -> 204
+ *   GET  {base}/me?limit=10                 -> ProfileView
  *   GET  {base}/mod/queue                   -> ModCaseView[]
  *   POST {base}/mod/cases/:id/decision      {verdict}  -> 204
  * The user is identified by the host's own session, never by anything the client sends.
@@ -64,6 +65,7 @@ export function createHttpClient(options: HttpClientOptions = {}): QuorumClient 
   return {
     getSubmission: (sid: string) => call<SubmissionView>("GET", `/submissions/${id(sid)}`),
     vote: (sid: string, choice: VoteChoice) => call<void>("POST", `/submissions/${id(sid)}/vote`, { choice }),
+    getProfile: (limit?: number) => call<ProfileView>("GET", `/me${limit === undefined ? "" : `?limit=${encodeURIComponent(String(limit))}`}`),
     getQueue: () => call<ModCaseView[]>("GET", "/mod/queue"),
     decide: (cid: string, verdict: Verdict) => call<void>("POST", `/mod/cases/${id(cid)}/decision`, { verdict }),
   };
