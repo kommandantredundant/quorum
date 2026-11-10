@@ -1,6 +1,6 @@
 {
   "name": "quorum-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reputation-weighted voting core: weights, evaluation, lifecycle. No I/O, no framework.",
   "license": "MPL-2.0",
   "author": "kommandantredundant",

@@ -1,7 +1,7 @@
 {
   "name": "quorum",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Embeddable, service-free reputation-weighted voting building block",
   "type": "module",
   "workspaces": [
@@ -24,13 +24,13 @@
     "release:check": "npm run clean && npm run build && npm run bundle && npm test"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.11",
+    "@electric-sql/pglite": "^0.5.16",
     "@types/node": "^22.0.0",
     "esbuild": "^0.28.2",
     "happy-dom": "^21.0.4",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5",
-    "vitest": "^5.0.5"
+    "vite": "^8.3.7",
+    "vitest": "^5.1.0"
   },
   "license": "MPL-2.0"
 }

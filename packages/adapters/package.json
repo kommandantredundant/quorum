@@ -1,6 +1,6 @@
 {
   "name": "quorum-adapters",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reference SQL storage for quorum-core / quorum-mod: SQLite (node:sqlite, better-sqlite3) and Postgres (pg, pglite).",
   "license": "MPL-2.0",
   "author": "kommandantredundant",
@@ -36,10 +36,10 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "quorum-core": "^0.1.0"
+    "quorum-core": "^0.2.0"
   },
   "peerDependencies": {
-    "quorum-mod": "^0.1.0"
+    "quorum-mod": "^0.2.0"
   },
   "peerDependenciesMeta": {
     "quorum-mod": {

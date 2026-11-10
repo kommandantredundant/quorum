@@ -81,7 +81,7 @@ Two runnable examples: `npm run example:minimal` and `npm run example:moderation
 
 ## Install
 
-The packages are published on npm (current version 0.1.1):
+The packages are published on npm (current version 0.2.0):
 
 ```sh
 npm install quorum-core            # required

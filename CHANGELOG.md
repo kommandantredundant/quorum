@@ -1,12 +1,24 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
-- New component `<quorum-profile>`: a member's own trust level (five steps, never the raw number), a short explanation and recent votes and suggestions with whether they matched the final decision
-- Core: `getProfile(ctx, { limit })`; optional storage methods `listVotesByVoter` and `listSubmissionsByAuthor` (implemented in the SQL adapters, with two new indexes created by the migration)
-- HTTP: new route `GET /me`
-- Docs: new page `docs/end-users.md` with ready-to-paste explanations for end users (English and German)
-- Docs: Node requirements and version numbers updated, warning about `processDue()` in getting started
+### Neu
+- Komponente `<quorum-profile>`: zeigt angemeldeten Mitgliedern ihr eigenes Vertrauen als eine von fünf Stufen (nie als rohe Zahl), eine kurze Erklärung und ihre letzten Stimmen und Vorschläge mit dem Hinweis, ob sie zur endgültigen Entscheidung passten
+- Kern: `getProfile(ctx, { limit })` liefert ausschließlich die eigenen Daten des angemeldeten Mitglieds
+- Storage: optionale Methoden `listVotesByVoter` und `listSubmissionsByAuthor`, in den SQL-Adaptern für SQLite und Postgres umgesetzt
+- HTTP: neue Route `GET /me` (401, wenn niemand angemeldet ist)
+- Doku: neue Seite `docs/end-users.md` mit fertigen Erklärtexten für Endnutzer (Deutsch und Englisch)
+
+### Geändert
+- Migration legt zwei zusätzliche Indizes an (`quorum_submissions_author`, `quorum_votes_voter_time`); `migrateSqlite`/`migratePostgres` beim nächsten Start ergänzen sie automatisch
+- Interne Abhängigkeiten der Pakete auf `^0.2.0` angehoben
+- Doku: Node-Anforderungen und Versionsangaben korrigiert, Hinweis auf `processDue()` in Getting Started
+- Entwicklungs-Abhängigkeiten: Vitest 5.1, Vite 8.3.7, PGlite 0.5.16
+
+### Upgrade
+- Keine inkompatiblen Änderungen. Alle Pakete gemeinsam auf 0.2.0 heben.
+- Eigene Storage-Implementierungen funktionieren weiter; ohne die zwei neuen Methoden zeigt `<quorum-profile>` nur die Vertrauensstufe.
+- Wer eigene Migrationen fährt: die zwei neuen Indizes aus `schemaSql()` übernehmen.
 
 ## 0.1.1
 
