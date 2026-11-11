@@ -2,34 +2,34 @@
 
 ## 0.2.0
 
-### Neu
-- Komponente `<quorum-profile>`: zeigt angemeldeten Mitgliedern ihr eigenes Vertrauen als eine von fünf Stufen (nie als rohe Zahl), eine kurze Erklärung und ihre letzten Stimmen und Vorschläge mit dem Hinweis, ob sie zur endgültigen Entscheidung passten
-- Kern: `getProfile(ctx, { limit })` liefert ausschließlich die eigenen Daten des angemeldeten Mitglieds
-- Storage: optionale Methoden `listVotesByVoter` und `listSubmissionsByAuthor`, in den SQL-Adaptern für SQLite und Postgres umgesetzt
-- HTTP: neue Route `GET /me` (401, wenn niemand angemeldet ist)
-- Doku: neue Seite `docs/end-users.md` mit fertigen Erklärtexten für Endnutzer (Deutsch und Englisch)
+### Added
+- `<quorum-profile>` component: shows logged-in members their own trust as one of five levels (never as a raw number), a short explanation, and their recent votes and suggestions with whether they matched the final decision
+- Core: `getProfile(ctx, { limit })` returns only the logged-in member's own data
+- Storage: optional methods `listVotesByVoter` and `listSubmissionsByAuthor`, implemented in the SQL adapters for SQLite and Postgres
+- HTTP: new route `GET /me` (401 when not logged in)
+- Docs: new page `docs/end-users.md` with ready-to-paste explanations for end users (English and German)
 
-### Geändert
-- Migration legt zwei zusätzliche Indizes an (`quorum_submissions_author`, `quorum_votes_voter_time`); `migrateSqlite`/`migratePostgres` beim nächsten Start ergänzen sie automatisch
-- Interne Abhängigkeiten der Pakete auf `^0.2.0` angehoben
-- Doku: Node-Anforderungen und Versionsangaben korrigiert, Hinweis auf `processDue()` in Getting Started
-- Entwicklungs-Abhängigkeiten: Vitest 5.1, Vite 8.3.7, PGlite 0.5.16
+### Changed
+- The migration creates two additional indexes (`quorum_submissions_author`, `quorum_votes_voter_time`); `migrateSqlite`/`migratePostgres` add them automatically on the next start
+- Internal package dependencies raised to `^0.2.0`
+- Docs: Node requirements and version numbers corrected, note on `processDue()` in getting started
+- Dev dependencies: Vitest 5.1, Vite 8.3.7, PGlite 0.5.16
 
-### Upgrade
-- Keine inkompatiblen Änderungen. Alle Pakete gemeinsam auf 0.2.0 heben.
-- Eigene Storage-Implementierungen funktionieren weiter; ohne die zwei neuen Methoden zeigt `<quorum-profile>` nur die Vertrauensstufe.
-- Wer eigene Migrationen fährt: die zwei neuen Indizes aus `schemaSql()` übernehmen.
+### Upgrading
+- No breaking changes. Upgrade all packages to 0.2.0 together.
+- Custom storage implementations keep working; without the two new methods, `<quorum-profile>` shows the trust level only.
+- If you run your own migrations, add the two new indexes from `schemaSql()`.
 
 ## 0.1.1
 
-- CI auf Node 22 (Build, Typecheck, Bundle, Tests bei Push und PR)
-- Entwicklungs-Abhängigkeiten aktualisiert: Vitest 5 (mit Vite 8), TypeScript 7, PGlite 0.5.11
-- `tsconfig.base.json`: `types: ["node"]` ausdrücklich gesetzt (TypeScript 7 bindet `@types/*` nicht mehr automatisch ein)
-- GitHub Actions auf v7 angehoben
-- Entwicklung erfordert jetzt Node >= 22.12 (Tests nutzen `node:sqlite`, Vitest 5 braucht es)
-- Neu im Repo: SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, Issue- und PR-Templates, Dependabot
-- Keine Änderungen an der Funktionalität der Pakete
+- CI on Node 22 (build, typecheck, bundle, tests on push and pull request)
+- Dev dependencies updated: Vitest 5 (with Vite 8), TypeScript 7, PGlite 0.5.11
+- `tsconfig.base.json`: `types: ["node"]` set explicitly (TypeScript 7 no longer includes `@types/*` automatically)
+- GitHub Actions raised to v7
+- Development now requires Node >= 22.12 (tests use `node:sqlite`, Vitest 5 requires it)
+- New in the repository: SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, issue and pull request templates, Dependabot
+- No functional changes to the packages
 
 ## 0.1.0
 
-Erste Veröffentlichung der Pakete `quorum-core`, `quorum-mod`, `quorum-adapters`, `quorum-http` und `quorum-ui`.
+First release of the packages `quorum-core`, `quorum-mod`, `quorum-adapters`, `quorum-http` and `quorum-ui`.
