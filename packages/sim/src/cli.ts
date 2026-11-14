@@ -5,12 +5,12 @@ const POINTS = 300;
 const SEEDS = 20;
 
 const scenarios: Scenario[] = [
-  { name: "Ehrlich", honest: 50, accuracy: [0.65, 0.9], points: POINTS },
-  { name: "Spam-Ring (5 von 50)", honest: 45, accuracy: [0.65, 0.9], attackers: 5, attackerAuthorShare: 0.15, points: POINTS },
-  { name: "Sybil roh (1+10)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, sybils: 10, attackerAuthorShare: 0.1, points: POINTS },
-  { name: "Sybil Farm (1+10)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, sybils: 10, sybilFarm: true, attackerAuthorShare: 0.1, points: POINTS },
-  { name: "Schläfer (Rep 30)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, attackerRep: 30, attackerAuthorShare: 0.1, points: POINTS },
-  { name: "Mitläufer (10 von 50)", honest: 40, accuracy: [0.65, 0.9], followers: 10, points: POINTS },
+  { name: "Honest", honest: 50, accuracy: [0.65, 0.9], points: POINTS },
+  { name: "Spam ring (5 of 50)", honest: 45, accuracy: [0.65, 0.9], attackers: 5, attackerAuthorShare: 0.15, points: POINTS },
+  { name: "Sybil raw (1+10)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, sybils: 10, attackerAuthorShare: 0.1, points: POINTS },
+  { name: "Sybil farm (1+10)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, sybils: 10, sybilFarm: true, attackerAuthorShare: 0.1, points: POINTS },
+  { name: "Sleeper (rep 30)", honest: 49, accuracy: [0.65, 0.9], attackers: 1, attackerRep: 30, attackerAuthorShare: 0.1, points: POINTS },
+  { name: "Followers (10 of 50)", honest: 40, accuracy: [0.65, 0.9], followers: 10, points: POINTS },
 ];
 
 export function simulate(sc: Scenario, mod: boolean, config?: DeepPartial<QuorumConfig>, hideInterim = false): Counters {
@@ -26,7 +26,7 @@ const mean = (p: { sum: number; n: number } | undefined) => (p && p.n > 0 ? (p.s
 
 function row(sc: Scenario, mod: boolean, c: Counters): string {
   return [
-    sc.name.padEnd(24), mod ? "mit Mod " : "ohne Mod",
+    sc.name.padEnd(24), mod ? "with mod" : "no mod  ",
     pct(c.correct, c.points), pct(c.badApproved, c.bad), pct(c.goodRejected, c.good), pct(c.attackerBadApproved, c.attackerBad),
     pct(c.review, c.points), pct(c.overridden, c.points),
     mean(c.rep.honest).padStart(6), mean(c.rep.attacker).padStart(6), mean(c.rep.sybil).padStart(6),
@@ -34,15 +34,15 @@ function row(sc: Scenario, mod: boolean, c: Counters): string {
   ].join(" | ");
 }
 
-export function main(config?: DeepPartial<QuorumConfig>, label = "Standard-Config"): void {
-  console.log(`\n== ${label} (${SEEDS} Läufe x ${POINTS} Punkte) ==`);
+export function main(config?: DeepPartial<QuorumConfig>, label = "Default config"): void {
+  console.log(`\n== ${label} (${SEEDS} runs x ${POINTS} points) ==`);
   console.log([
-    "Szenario".padEnd(24), "Modus   ", "richtig", "Schl.gen", "Gut abg", "Angr.gen", "Review ", "Overrid", "Rep ehr", "Rep Ang", "Rep Syb", "Ang.Gew.", "Top5 Gew", "Max Gew ",
+    "Scenario".padEnd(24), "Mode    ", "correct", "Bad appr", "Good rej", "Att.appr", "Review ", "Overrid", "Rep hon", "Rep att", "Rep syb", "Att.wt. ", "Top5 wt.", "Max wt. ",
   ].join(" | "));
   for (const sc of scenarios) for (const mod of [false, true]) console.log(row(sc, mod, simulate(sc, mod, config)));
 
   const c = simulate(scenarios[5] as Scenario, false, config);
-  console.log("\nReputationsgewinn pro Stimme nach Ankunftsposition (Szenario Mitläufer, ohne Mod):");
+  console.log("\nReputation gain per vote by arrival position (scenario Followers, no mod):");
   for (const group of ["honest", "follower"]) {
     console.log(`  ${group.padEnd(9)} ` + [1, 2, 3, 4, 5].map((p) => `Pos ${p}${p === 5 ? "+" : " "}: ${mean(c.gain[`${group}:${p}`])}`.padEnd(14)).join(""));
   }
