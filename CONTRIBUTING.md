@@ -1,8 +1,10 @@
-# Beitragen zu Quorum
+# Contributing to Quorum
 
-Danke für dein Interesse! So geht es los:
+Thanks for your interest! Here is how to get started.
 
-## Entwicklung
+## Development
+
+Requires Node 22.12 or newer.
 
 ```bash
 npm install
@@ -10,20 +12,20 @@ npm run build
 npm test
 ```
 
-Nützlich: `npm run typecheck`, `npm run sim` (Simulation) und `npm run sweep` (Parametervergleich).
+Also useful: `npm run typecheck`, `npm run sim` (simulation) and `npm run sweep` (parameter comparison).
 
-## Ablauf
+## Workflow
 
-1. Issue eröffnen oder ein bestehendes kommentieren, bevor du größere Änderungen beginnst.
-2. Fork anlegen, Branch erstellen, Änderung mit Tests umsetzen.
-3. Pull Request gegen `main` öffnen. Die CI muss grün sein.
+1. Open an issue, or comment on an existing one, before starting larger changes.
+2. Fork, create a branch, and implement the change with tests.
+3. Open a pull request against `main`. CI must be green.
 
-## Grundsätze
+## Principles
 
-- `quorum-core` bleibt frei von Abhängigkeiten zu Diensten, und `quorum-mod` muss weglassbar bleiben.
-- Änderungen am Reputationsverhalten (Gewichte, Belohnung, Strafe) bitte mit `npm run sim` belegen.
-- Commit-Nachrichten im Stil `feat:`, `fix:`, `docs:`, `ci:`, `chore:`.
+- `quorum-core` stays free of dependencies on services, and `quorum-mod` must remain optional.
+- Back changes to reputation behaviour (weights, reward, penalty) with `npm run sim`.
+- Commit messages in the style `feat:`, `fix:`, `docs:`, `ci:`, `chore:`.
 
-## Lizenz
+## License
 
-Mit deinem Beitrag stimmst du zu, dass er unter der [MPL-2.0](LICENSE) veröffentlicht wird.
+By contributing, you agree that your contribution is published under the [MPL-2.0](LICENSE).

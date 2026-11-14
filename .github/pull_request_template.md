@@ -1,10 +1,10 @@
-## Was ändert sich?
+## What changes?
 
-<!-- Kurze Beschreibung und Motivation -->
+<!-- Short description and motivation -->
 
-## Checkliste
+## Checklist
 
-- [ ] `npm run build` und `npm test` laufen durch
-- [ ] Neue Logik ist durch Tests abgedeckt
-- [ ] Doku (README / `docs/`) ist angepasst, falls nötig
-- [ ] Änderungen am Reputations- oder Gewichtsverhalten sind mit `npm run sim` geprüft
+- [ ] `npm run build` and `npm test` pass
+- [ ] New logic is covered by tests
+- [ ] Docs (README / `docs/`) are updated where needed
+- [ ] Changes to reputation or weight behaviour are checked with `npm run sim`

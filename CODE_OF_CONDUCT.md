@@ -1,13 +1,13 @@
-# Verhaltenskodex
+# Code of conduct
 
-Wir wollen eine respektvolle, offene Zusammenarbeit. Erwartet wird:
+We want respectful, open collaboration. We expect:
 
-- freundlicher, sachlicher Umgang, auch bei Meinungsverschiedenheiten
-- konstruktive Kritik statt persönlicher Angriffe
-- keine Belästigung, Diskriminierung oder Herabwürdigung
+- friendly, factual interaction, also when opinions differ
+- constructive criticism instead of personal attacks
+- no harassment, discrimination or belittling
 
-Verstöße können über die privaten Kontaktwege des Repo-Betreibers auf GitHub gemeldet werden.
-Der Betreiber kann Kommentare, Issues und Beiträge entfernen und Personen ausschließen.
+Violations can be reported to the repository owner through GitHub's private contact options.
+The owner may remove comments, issues and contributions, and exclude people.
 
-Dieser Text ist eine kurze eigene Fassung. Wenn du einen etablierten Standard bevorzugst, ersetze ihn durch den
+This is a short text of our own. If you prefer an established standard, replace it with the
 Contributor Covenant (https://www.contributor-covenant.org).

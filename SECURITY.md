@@ -1,20 +1,19 @@
-# Sicherheitsrichtlinie
+# Security policy
 
-## Sicherheitslücke melden
+## Reporting a vulnerability
 
-Bitte melde Sicherheitsprobleme **nicht** als öffentliches Issue, sondern privat über
+Please do **not** report security problems as public issues. Report them privately via
 [GitHub Security Advisories](https://github.com/kommandantredundant/quorum/security/advisories/new).
 
-Hilfreich sind: betroffenes Paket und Version, Beschreibung des Problems, Schritte zum
-Nachstellen und mögliche Auswirkungen (z. B. Manipulation von Reputation oder
-Abstimmungsergebnissen).
+Helpful details: affected package and version, a description of the problem, steps to reproduce
+and the possible impact (e.g. manipulation of reputation or voting results).
 
-## Unterstützte Versionen
+## Supported versions
 
-Aktuell wird nur die jeweils neueste veröffentlichte Version (derzeit 0.1.x) mit Sicherheitskorrekturen versorgt.
+Only the latest published version receives security fixes.
 
-## Hinweis
+## Note
 
-Dieses Projekt ist vollständig LLM-generiert. Prüfe den Code vor dem Einsatz in sicherheitskritischen
-Umgebungen selbst. Besonders die Vertrauensgrenze zwischen Client und Server (Identität der Voter,
-Moderatorrechte) liegt in der Verantwortung der einbindenden Webseite.
+This project is fully LLM-generated. Review the code yourself before using it in security-critical
+environments. In particular, the trust boundary between client and server (voter identity,
+moderator rights) is the responsibility of the integrating website.

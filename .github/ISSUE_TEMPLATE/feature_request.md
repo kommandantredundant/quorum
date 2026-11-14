@@ -1,13 +1,13 @@
 ---
-name: Idee / Feature
-about: Vorschlag für eine Erweiterung
+name: Idea / feature
+about: Suggest an extension
 labels: enhancement
 ---
 
-**Welches Problem willst du lösen?**
+**What problem do you want to solve?**
 
-**Dein Lösungsvorschlag**
+**Your proposed solution**
 
-**Alternativen, die du erwogen hast**
+**Alternatives you considered**
 
-**Betrifft es das Reputationsverhalten?** Bitte kurz beschreiben, wie sich Gewichte oder Strafen ändern würden.
+**Does it affect reputation behaviour?** Please describe briefly how weights or penalties would change.

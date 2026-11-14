@@ -1,15 +1,15 @@
 ---
-name: Fehlerbericht
-about: Etwas funktioniert nicht wie dokumentiert
+name: Bug report
+about: Something does not work as documented
 labels: bug
 ---
 
-**Betroffenes Paket und Version** (z. B. quorum-core 0.1.0)
+**Affected package and version** (e.g. quorum-core 0.2.0)
 
-**Was ist passiert?**
+**What happened?**
 
-**Was hast du erwartet?**
+**What did you expect?**
 
-**Schritte zum Nachstellen** (möglichst minimal)
+**Steps to reproduce** (as minimal as possible)
 
-**Umgebung** (Node-Version, Browser, Storage-Adapter)
+**Environment** (Node version, browser, storage adapter)
